@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-lato);
+  --font-serif: var(--font-playfair);
+}
+
+/* ------------------------------------------- */
+/* --- VARIABLES ROOT (Modo Claro) --- */
+/* ------------------------------------------- */
+:root {
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.12 0 0);
+  --card-foreground: oklch(0.985 0 0);
+
+  --popover: oklch(0.12 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  --primary: oklch(0.72 0.14 75); /* Oro cálido del logo */
+  --primary-foreground: oklch(0.1 0 0);
+
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.5 0.2 25);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.2 0 0);
+  --input: oklch(0.2 0 0);
+  --ring: oklch(0.72 0.14 75); /* Anillo del color del logo */
+
+  --radius: 0.5rem;
+}
+
+/* ------------------------------------------- */
+/* --- VARIABLES DARK (Modo Oscuro) --- */
+/* ------------------------------------------- */
+.dark {
+  --background: oklch(0.1 0 0);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.12 0 0);
+  --card-foreground: oklch(0.985 0 0);
+
+  --popover: oklch(0.12 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  --primary: oklch(0.68 0.12 75); /* Un poco más oscuro para modo oscuro */
+  --primary-foreground: oklch(0.1 0 0);
+
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.5 0.2 25);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.2 0 0);
+  --input: oklch(0.2 0 0);
+  --ring: oklch(0.68 0.12 75);
+
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* ------------------------------------------- */
+/* --- CLASES DE UTILIDAD PARA EL ORO --- */
+/* ------------------------------------------- */
+
+/* Color dorado principal (#D4AF37) */
+.text-gold {
+  color: #D4AF37;
+}
+
+.bg-gold {
+  background-color: #D4AF37;
+  color: oklch(0.1 0 0);
+}
+
+.border-gold {
+  border-color: #D4AF37;
+}
+
+/* Gradiente metálico del logo (Claro, Base, Oscuro) */
+.text-gold-gradient {
+  background: linear-gradient(
+    135deg,
+    #E6C158 0%,    /* Tono claro */
+    #D4AF37 50%,   /* Tono principal */
+    #A67C00 100%   /* Tono oscuro/Sombra - ¡Ajustado a un oro más oscuro! */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(
+    135deg,
+    #E6C158 0%,
+    #D4AF37 50%,
+    #A67C00 100%
+  );
+  color: oklch(0.1 0 0);
+}
+
+/* Versiones más sutiles */
+.text-gold-subtle {
+  color: #C9A227;
+}
+
+.bg-gold-subtle {
+  background-color: #C9A227;
+  color: oklch(0.1 0 0);
+}
+
+.border-gold-subtle {
+  border-color: #C9A227;
+}
+
+/* Versiones para acentos más claros */
+.text-gold-light {
+  color: #E6C158;
+}
+
+.bg-gold-light {
+  background-color: #E6C158;
+  color: oklch(0.1 0 0);
+}
+
+.border-gold-light {
+  border-color: #E6C158;
+}
+
+/* Ajustes para modo oscuro: Mejor contraste */
+.dark .text-gold {
+  color: #E6C158; /* Color más claro (#E6C158) para mejor contraste con fondo oscuro */
+}
+
+.dark .bg-gold {
+  background-color: #A67C00; /* Color más oscuro (#A67C00) para un botón que no sea demasiado brillante */
+  color: oklch(0.985 0 0); /* Usamos texto blanco */
+}
+
+.dark .border-gold {
+  border-color: #A67C00;
+}
+
+.dark .text-gold-subtle {
+  color: #B8941F;
+}
+
+.dark .bg-gold-subtle {
+  background-color: #B8941F;
+  color: oklch(0.1 0 0);
+}
+
+.dark .border-gold-subtle {
+  border-color: #B8941F;
+}

@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  activityLogs ActivityLog[]
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  brand       String?
+  category    String // Masculino, Femenino, Unisex
+
+  // Decant availability
+  hasDecant       Boolean  @default(false)
+  priceDecant5ml  Decimal? // Precio para 5ml
+  priceDecant10ml Decimal? // Precio para 10ml
+  stockDecant5ml  Int      @default(0)
+  stockDecant10ml Int      @default(0)
+
+  // Full bottle availability (Perfume Original)
+  hasFullBottle  Boolean  @default(false)
+  priceFull      Decimal?
+  fullBottleSize String? // "50ml", "100ml", etc.
+  stockFull      Int      @default(0)
+
+  // Reservation settings
+  allowReservation     Boolean @default(true) // Si se puede reservar cuando no hay stock
+  estimatedRestockDays Int? // Días estimados para restock
+
+  // General product info
+  images     String[] // Array of image URLs
+  isActive   Boolean  @default(true)
+  isFeatured Boolean  @default(false) // Para destacar en Hero
+
+  // Metadata
+  notes     String? // Notas olfativas: "Cítrico, Amaderado, Especiado"
+  longevity String? // "6-8 horas"
+  sillage   String? // "Moderado", "Fuerte"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orderItems OrderItem[]
+}
+
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique // ORD-20250106-001
+
+  // Customer info
+  customerName  String
+  customerPhone String
+  customerEmail String?
+
+  // Order details
+  items       OrderItem[]
+  totalAmount Decimal
+
+  // Status tracking
+  status        String @default("PENDING") // PENDING, RESERVED_50%, PAID, DELIVERED, CANCELLED
+  paymentStatus String @default("PENDING") // PENDING, PARTIAL_50%, PAID
+
+  // Delivery
+  deliveryAddress String?
+  deliveryNotes   String?
+
+  // Payment proof
+  paymentProofUrl String?
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  paidAt      DateTime?
+  deliveredAt DateTime?
+
+  // Admin notes
+  adminNotes String?
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  // Item details
+  variant      String // "decant-5ml", "decant-10ml", "original"
+  quantity     Int
+  pricePerUnit Decimal
+  subtotal     Decimal
+
+  // Item status
+  status        String  @default("PENDING") // PENDING, IN_STOCK, RESERVED, READY, DELIVERED
+  isReservation Boolean @default(false) // Si es una reserva (producto no disponible)
+
+  // Reservation tracking
+  reservedAt       DateTime?
+  expectedArrival  DateTime? // Fecha estimada de llegada del producto
+  arrivedAt        DateTime? // Cuando llegó el producto reservado
+  notifiedCustomer Boolean   @default(false) // Si se notificó al cliente
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PaymentProof {
+  id            String   @id @default(cuid())
+  customerName  String
+  customerPhone String
+  imageUrl      String
+  comment       String?
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ActivityLog {
+  id String @id @default(cuid())
+
+  // User info (optional for guest actions)
+  user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId   String?
+  userName String? // Nombre del usuario o "Sistema" o "Cliente"
+
+  // Action details
+  action   String // "ORDER_CREATED", "PAYMENT_VERIFIED", "PRODUCT_UPDATED", etc.
+  entity   String // "Order", "Product", "Payment", etc.
+  entityId String? // ID del registro afectado
+
+  // Details
+  description String // Descripción legible: "Pedido ORD-001 creado por Juan Pérez"
+  metadata    Json? // Datos adicionales en JSON
+
+  // Context
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
