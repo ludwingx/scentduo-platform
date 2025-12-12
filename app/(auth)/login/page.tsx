@@ -33,8 +33,7 @@ export default function LoginPage() {
           }}
         >
           <Button
-            variant="outline"
-            className="w-full bg-white text-black hover:bg-gray-100 hover:text-black font-semibold border-none h-11"
+            className="w-full hover:cursor-pointer bg-white text-black font-semibold border-none h-11 hover:bg-gold"
             type="submit"
           >
             <svg

@@ -119,6 +119,11 @@ body {
 /* ------------------------------------------- */
 
 /* Color dorado principal (#D4AF37) */
+.hover\:bg-gold:hover, .button-google:hover {
+  background-color: #d4af37 !important;
+  color: #111 !important;
+  transition: background 0.2s, color 0.2s;
+}
 .text-gold {
   color: #d4af37;
 }
