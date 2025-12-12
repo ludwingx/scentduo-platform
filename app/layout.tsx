@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Lato } from "next/font/google";
+import { Cinzel, Lato } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import FloatingCartButton from "./(public)/components/FloatingCartButton";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
 });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${playfair.variable} ${lato.variable} antialiased`}>
+      <body className={`${cinzel.variable} ${lato.variable} antialiased`}>
         {children}
         <FloatingCartButton />
         <Toaster />

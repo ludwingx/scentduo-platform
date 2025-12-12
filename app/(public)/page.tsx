@@ -19,24 +19,24 @@ import Image from "next/image";
 // Featured product for Hero
 const FEATURED_HERO_PRODUCT = {
   id: "1",
-  name: "Dior Sauvage Elixir",
-  description: "Fragancia concentrada y extraordinaria",
-  category: "Masculino",
+  name: "Baccarat Rouge 540 Extrait",
+  description: "Una alquimia poética, intensa y gráfica",
+  category: "Unisex",
   images: [
-    "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1000&auto=format&fit=crop",
+    "https://aromadrop.mu/cdn/shop/files/baccarat_extrait_aa8fd775-1ad1-40ef-ad1d-907cb703f91d.png?v=1700907097",
   ],
   hasDecant: true,
-  priceDecant5ml: 50,
-  priceDecant10ml: 80,
+  priceDecant5ml: 120,
+  priceDecant10ml: 220,
   stockDecant5ml: 10,
   stockDecant10ml: 15,
   hasFullBottle: true,
-  priceFull: 1200,
-  fullBottleSize: "100ml",
+  priceFull: 3500,
+  fullBottleSize: "70ml",
   stockFull: 3,
-  originalPrice: 120,
-  badge: "Oferta Especial",
-  discount: 33,
+  originalPrice: 150, // Reference price for 5/10ml display usually
+  badge: "Más Vendido",
+  discount: 20,
 };
 
 // Mock data for featured products section
@@ -88,42 +88,42 @@ const FEATURED_PRODUCTS = [
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col gap-6 md:gap-8 lg:gap-10 pb-6 md:pb-8 lg:pb-10">
+    <div className="flex flex-col gap-6 md:gap-8 lg:gap-10">
       {/* Hero Section - Product Left, Brand Right */}
-      <section className="container mx-auto px-3 sm:px-4 lg:px-6 pt-20 sm:pt-22 md:pt-24 pb-6 sm:pb-8 md:pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 lg:gap-12 items-center max-w-7xl mx-auto">
+      <section className="container mx-auto px-4 min-h-[calc(100vh-80px)] flex flex-col justify-center py-20 sm:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-20 items-center max-w-7xl mx-auto w-full">
           {/* Left: Brand & Slogan (Top on mobile) */}
-          <div className="flex flex-col justify-center space-y-4 md:space-y-6 order-1 lg:order-2">
+          <div className="flex flex-col justify-center space-y-6 md:space-y-8 order-1 lg:order-2 text-center lg:text-left min-h-[75vh] lg:min-h-0 lg:pt-0">
             <div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tight leading-tight mb-2 md:mb-3">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-tight leading-none mb-4">
                 SCENT <span className="text-gold">DUO</span>
               </h1>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 font-light italic mb-3 md:mb-4">
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light italic mb-4 md:mb-6">
                 Fragancias que hablan por vos.
               </p>
-              <p className="text-sm sm:text-base text-gray-400 leading-relaxed max-w-lg">
+              <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 Perfumes originales y de alta duración.
               </p>
             </div>
 
             {/* Info Points */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-gray-300 text-sm">
-                <Package className="h-4 w-4 text-gold flex-shrink-0" />
+            <div className="space-y-3 flex flex-col items-center lg:items-start">
+              <div className="flex items-center gap-3 text-gray-300 text-sm sm:text-base">
+                <Package className="h-5 w-5 text-gold flex-shrink-0" />
                 <span>Envíos a toda Bolivia</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-300 text-sm">
-                <Send className="h-4 w-4 text-gold flex-shrink-0" />
+              <div className="flex items-center gap-3 text-gray-300 text-sm sm:text-base">
+                <Send className="h-5 w-5 text-gold flex-shrink-0" />
                 <span>Pedidos por WhatsApp</span>
               </div>
             </div>
 
             {/* CTA */}
-            <div className="pt-2">
+            <div className="pt-4 flex justify-center lg:justify-start">
               <Link href="/catalogo">
                 <Button
                   size="default"
-                  className="w-full sm:w-auto px-6 py-4 sm:px-7 sm:py-5 rounded-full bg-gold text-black hover:opacity-90 font-bold text-sm sm:text-base"
+                  className="w-full sm:w-auto px-10 py-7 rounded-full bg-gold text-black hover:opacity-90 font-bold text-lg shadow-xl hover:shadow-gold/20 transition-all"
                 >
                   Explorar Catálogo
                 </Button>
@@ -132,44 +132,41 @@ export default function HomePage() {
           </div>
 
           {/* Right: Featured Product (Bottom on mobile) */}
-          <div className="relative order-2 lg:order-1">
-            {/* Product Card */}
-            <div className="relative bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-white/10 p-4 sm:p-5 md:p-6 shadow-xl sm:shadow-2xl">
-              {/* Discount Badge */}
-              <div className="absolute -top-2 -right-2 bg-gold text-black px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg z-10">
-                <Sparkles className="h-3 w-3" />
-                {FEATURED_HERO_PRODUCT.discount}% OFF
-              </div>
-
+          <div className="relative order-2 lg:order-1 flex justify-center lg:justify-end">
+            {/* Contenedor del producto, ahora centrado en la imagen con la info superpuesta */}
+            <div className="relative w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[420px] p-4 sm:p-6"> 
+              
               {/* Product Image */}
-              <div className="relative aspect-square w-full mb-3 sm:mb-4">
+              <div className="relative aspect-square w-full">
                 <Image
                   src={FEATURED_HERO_PRODUCT.images[0]}
                   alt={FEATURED_HERO_PRODUCT.name}
                   fill
-                  className="object-contain p-2"
+                  className="object-contain p-2 hover:scale-105 transition-transform duration-500"
                   priority
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>
 
-              {/* Product Info */}
-              <div className="space-y-2 sm:space-y-3">
-                <div>
-                  <span className="text-gold text-xs font-bold uppercase tracking-wider">
+              {/* Product Info - Posicionado A LA IZQUIERDA Y ARRIBA UN POCO */}
+              <div className="absolute **bottom-4** left-0 w-[62%] sm:w-[60%] lg:w-[55%] flex flex-col items-start space-y-2 p-3 rounded-xl shadow-2xl shadow-gold/10">
+                
+                {/* Badge & Name */}
+                <div className="text-left"> 
+                  <span className="bg-gold text-black text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded block mb-1">
                     {FEATURED_HERO_PRODUCT.badge}
                   </span>
-                  <h3 className="text-lg sm:text-xl font-serif font-bold text-white mt-1 line-clamp-1">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white line-clamp-1">
                     {FEATURED_HERO_PRODUCT.name}
                   </h3>
                 </div>
 
                 {/* Pricing */}
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-gold">
+                <div className="flex items-baseline justify-start gap-2">
+                  <span className="text-3xl font-extrabold text-gold">
                     Bs {FEATURED_HERO_PRODUCT.priceDecant10ml}
                   </span>
-                  <span className="text-base text-gray-500 line-through">
+                  <span className="text-sm text-gray-400 line-through">
                     Bs {FEATURED_HERO_PRODUCT.originalPrice}
                   </span>
                 </div>
@@ -177,14 +174,21 @@ export default function HomePage() {
                 {/* CTA */}
                 <Link
                   href={`/producto/${FEATURED_HERO_PRODUCT.id}`}
-                  className="block"
+                  className="w-full mt-2"
                 >
-                  <Button className="w-full py-3 sm:py-4 rounded-full bg-gold text-black hover:opacity-90 font-bold flex items-center justify-center gap-1 text-sm">
-                    <ShoppingCart className="h-3 w-3" />
+                  <Button className="w-full py-2 sm:py-3 rounded-full bg-gold text-black hover:bg-gold/90 font-bold flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg">
+                    <ShoppingCart className="h-4 w-4" />
                     Comprar Ahora
                   </Button>
                 </Link>
               </div>
+
+              {/* Discount Badge - Se mantiene arriba a la derecha */}
+              <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg z-10">
+                <Sparkles className="h-3 w-3" />
+                {FEATURED_HERO_PRODUCT.discount}% OFF
+              </div>
+              
             </div>
           </div>
         </div>

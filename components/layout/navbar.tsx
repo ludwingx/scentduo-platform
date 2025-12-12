@@ -18,11 +18,14 @@ const NAV_LINKS = [
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
+    setIsMounted(true);
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -66,34 +69,44 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         <div className="md:hidden">
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/10"
+          {isMounted ? (
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/10"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-[300px] bg-black/95 border-l border-white/10"
               >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-[300px] bg-black/95 border-l border-white/10"
+                <div className="flex flex-col gap-8 mt-10">
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-lg font-medium text-gray-300 hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/10"
             >
-              <div className="flex flex-col gap-8 mt-10">
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium text-gray-300 hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-            </SheetContent>
-          </Sheet>
+              <Menu className="h-6 w-6" />
+            </Button>
+          )}
         </div>
       </div>
     </nav>

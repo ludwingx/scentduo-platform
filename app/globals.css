@@ -4,7 +4,7 @@
 
 @theme {
   --font-sans: var(--font-lato);
-  --font-serif: var(--font-playfair);
+  --font-serif: var(--font-cinzel);
 }
 
 /* ------------------------------------------- */
@@ -120,25 +120,26 @@ body {
 
 /* Color dorado principal (#D4AF37) */
 .text-gold {
-  color: #D4AF37;
+  color: #d4af37;
 }
 
 .bg-gold {
-  background-color: #D4AF37;
+  background-color: #d4af37;
   color: oklch(0.1 0 0);
 }
 
 .border-gold {
-  border-color: #D4AF37;
+  border-color: #d4af37;
 }
 
 /* Gradiente metálico del logo (Claro, Base, Oscuro) */
 .text-gold-gradient {
   background: linear-gradient(
     135deg,
-    #E6C158 0%,    /* Tono claro */
-    #D4AF37 50%,   /* Tono principal */
-    #A67C00 100%   /* Tono oscuro/Sombra - ¡Ajustado a un oro más oscuro! */
+    #e6c158 0%,
+    /* Tono claro */ #d4af37 50%,
+    /* Tono principal */ #a67c00 100%
+      /* Tono oscuro/Sombra - ¡Ajustado a un oro más oscuro! */
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -146,66 +147,61 @@ body {
 }
 
 .bg-gold-gradient {
-  background: linear-gradient(
-    135deg,
-    #E6C158 0%,
-    #D4AF37 50%,
-    #A67C00 100%
-  );
+  background: linear-gradient(135deg, #e6c158 0%, #d4af37 50%, #a67c00 100%);
   color: oklch(0.1 0 0);
 }
 
 /* Versiones más sutiles */
 .text-gold-subtle {
-  color: #C9A227;
+  color: #c9a227;
 }
 
 .bg-gold-subtle {
-  background-color: #C9A227;
+  background-color: #c9a227;
   color: oklch(0.1 0 0);
 }
 
 .border-gold-subtle {
-  border-color: #C9A227;
+  border-color: #c9a227;
 }
 
 /* Versiones para acentos más claros */
 .text-gold-light {
-  color: #E6C158;
+  color: #e6c158;
 }
 
 .bg-gold-light {
-  background-color: #E6C158;
+  background-color: #e6c158;
   color: oklch(0.1 0 0);
 }
 
 .border-gold-light {
-  border-color: #E6C158;
+  border-color: #e6c158;
 }
 
 /* Ajustes para modo oscuro: Mejor contraste */
 .dark .text-gold {
-  color: #E6C158; /* Color más claro (#E6C158) para mejor contraste con fondo oscuro */
+  color: #e6c158; /* Color más claro (#E6C158) para mejor contraste con fondo oscuro */
 }
 
 .dark .bg-gold {
-  background-color: #A67C00; /* Color más oscuro (#A67C00) para un botón que no sea demasiado brillante */
+  background-color: #a67c00; /* Color más oscuro (#A67C00) para un botón que no sea demasiado brillante */
   color: oklch(0.985 0 0); /* Usamos texto blanco */
 }
 
 .dark .border-gold {
-  border-color: #A67C00;
+  border-color: #a67c00;
 }
 
 .dark .text-gold-subtle {
-  color: #B8941F;
+  color: #b8941f;
 }
 
 .dark .bg-gold-subtle {
-  background-color: #B8941F;
+  background-color: #b8941f;
   color: oklch(0.1 0 0);
 }
 
 .dark .border-gold-subtle {
-  border-color: #B8941F;
+  border-color: #b8941f;
 }
