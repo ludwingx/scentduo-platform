@@ -21,7 +21,7 @@ const FEATURED_HERO_PRODUCT = {
   id: "1",
   name: "Baccarat Rouge 540 Extrait",
   description: "Una alquimia poética, intensa y gráfica",
-  category: "Unisex",
+  // category: "Unisex", // Removed
   images: [
     "https://aromadrop.mu/cdn/shop/files/baccarat_extrait_aa8fd775-1ad1-40ef-ad1d-907cb703f91d.png?v=1700907097",
   ],
@@ -45,7 +45,7 @@ const FEATURED_PRODUCTS = [
     id: "2",
     name: "Creed Aventus",
     description: "La fragancia de los reyes.",
-    category: "Masculino",
+    // category: "Masculino", // Removed
     images: [PLACEHOLDER_IMAGE],
     hasDecant: true,
     priceDecant5ml: 90,
@@ -58,7 +58,7 @@ const FEATURED_PRODUCTS = [
     id: "3",
     name: "Baccarat Rouge 540",
     description: "Luminoso y sofisticado.",
-    category: "Unisex",
+    // category: "Unisex", // Removed
     images: [
       "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1000&auto=format&fit=crop",
     ],
@@ -76,7 +76,7 @@ const FEATURED_PRODUCTS = [
     id: "4",
     name: "Chanel No 5",
     description: "La esencia de la feminidad.",
-    category: "Femenino",
+    // category: "Femenino", // Removed
     images: [PLACEHOLDER_IMAGE],
     hasDecant: false,
     hasFullBottle: true,
@@ -134,8 +134,7 @@ export default function HomePage() {
           {/* Right: Featured Product (Bottom on mobile) */}
           <div className="relative order-2 lg:order-1 flex justify-center lg:justify-end">
             {/* Contenedor del producto, ahora centrado en la imagen con la info superpuesta */}
-            <div className="relative w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[420px] p-4 sm:p-6"> 
-              
+            <div className="relative w-full max-w-[320px] sm:max-w-[380px] lg:max-w-[420px] p-4 sm:p-6">
               {/* Product Image */}
               <div className="relative aspect-square w-full">
                 <Image
@@ -150,9 +149,8 @@ export default function HomePage() {
 
               {/* Product Info - Posicionado A LA IZQUIERDA Y ARRIBA UN POCO */}
               <div className="absolute **bottom-4** left-0 w-[62%] sm:w-[60%] lg:w-[55%] flex flex-col items-start space-y-2 p-3 rounded-xl shadow-2xl shadow-gold/10">
-                
                 {/* Badge & Name */}
-                <div className="text-left"> 
+                <div className="text-left">
                   <span className="bg-gold text-black text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded block mb-1">
                     {FEATURED_HERO_PRODUCT.badge}
                   </span>
@@ -188,7 +186,6 @@ export default function HomePage() {
                 <Sparkles className="h-3 w-3" />
                 {FEATURED_HERO_PRODUCT.discount}% OFF
               </div>
-              
             </div>
           </div>
         </div>
@@ -224,7 +221,7 @@ export default function HomePage() {
       </section>
 
       <BenefitsSection />
-      <CategoriesGrid />
+      {/* <CategoriesGrid /> */}
       <StorySection />
       <NewsletterSection />
     </div>

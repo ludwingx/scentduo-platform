@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { ProductForm } from "../../product-form";
+import { ProductFormWrapper } from "../../product-form-wrapper";
 import { getBrands } from "@/app/actions/brands";
 
 async function getProduct(id: string) {
@@ -32,7 +32,7 @@ export default async function EditProductPage({
         </p>
       </div>
 
-      <ProductForm product={product} brands={brands} />
+      <ProductFormWrapper product={product} brands={brands} />
     </div>
   );
 }

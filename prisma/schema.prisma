@@ -81,7 +81,7 @@ model Product {
   name        String
   description String
   // brand       String? // Removed in favor of relation
-  category    String // Broad category or gender fallback
+  // category    String // Broad category or gender fallback - REMOVED
 
   brand   Brand?  @relation(fields: [brandId], references: [id])
   brandId String?

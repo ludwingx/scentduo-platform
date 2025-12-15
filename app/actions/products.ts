@@ -12,7 +12,7 @@ const productSchema = z.object({
   description: z
     .string()
     .min(10, "La descripción debe tener al menos 10 caracteres"),
-  category: z.string().min(2, "La categoría es requerida"),
+  // category: z.string().min(2, "La categoría es requerida"), // Removed
   // New fields
   brandId: z.string().optional(),
   olfactoryFamily: z.string().optional(),
@@ -40,7 +40,7 @@ export async function createProduct(formData: FormData) {
   const rawData = {
     name: formData.get("name"),
     description: formData.get("description"),
-    category: formData.get("category"),
+    // category: formData.get("category"),
     brandId: formData.get("brandId") || undefined, // Handle empty string
     olfactoryFamily: formData.get("olfactoryFamily"),
     topNotes: formData.get("topNotes"),
@@ -79,7 +79,7 @@ export async function createProduct(formData: FormData) {
       data: {
         name: validatedFields.data.name,
         description: validatedFields.data.description,
-        category: validatedFields.data.category,
+        // category: validatedFields.data.category,
         brandId: validatedFields.data.brandId,
         olfactoryFamily: validatedFields.data.olfactoryFamily,
         topNotes: validatedFields.data.topNotes,
@@ -127,7 +127,7 @@ export async function updateProduct(id: string, formData: FormData) {
   const rawData = {
     name: formData.get("name"),
     description: formData.get("description"),
-    category: formData.get("category"),
+    // category: formData.get("category"),
     brandId: formData.get("brandId") || undefined,
     olfactoryFamily: formData.get("olfactoryFamily"),
     topNotes: formData.get("topNotes"),
@@ -220,7 +220,7 @@ export async function updateProduct(id: string, formData: FormData) {
         data: {
           name: validatedFields.data.name,
           description: validatedFields.data.description,
-          category: validatedFields.data.category,
+          // category: validatedFields.data.category,
           brandId: validatedFields.data.brandId,
           olfactoryFamily: validatedFields.data.olfactoryFamily,
           topNotes: validatedFields.data.topNotes,

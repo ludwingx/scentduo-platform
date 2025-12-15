@@ -15,7 +15,7 @@ async function getInventory() {
     select: {
       id: true,
       name: true,
-      category: true,
+      // category: true, // Removed
       stockFull: true,
       stockDecant5ml: true,
       stockDecant10ml: true,

@@ -19,7 +19,7 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  category: string;
+  // category: string; // Removed
   images: string[];
 
   // Decant availability
@@ -90,15 +90,15 @@ export function ProductCard({ product }: ProductCardProps) {
               </Badge>
             </div>
           )}
-          {/* Category Badge */}
-          <div className="absolute top-2 left-2">
+          {/* Category Badge - Removed */}
+          {/* <div className="absolute top-2 left-2">
             <Badge
               variant="secondary"
               className="text-xs font-medium bg-black/60 text-white border-0"
             >
               {product.category}
             </Badge>
-          </div>
+          </div> */}
         </div>
       </CardHeader>
 

@@ -1,4 +1,4 @@
-import { ProductForm } from "../product-form";
+import { ProductFormWrapper } from "../product-form-wrapper";
 import { getBrands } from "@/app/actions/brands";
 
 export default async function NewProductPage() {
@@ -13,7 +13,7 @@ export default async function NewProductPage() {
         </p>
       </div>
 
-      <ProductForm brands={brands} />
+      <ProductFormWrapper brands={brands} />
     </div>
   );
 }

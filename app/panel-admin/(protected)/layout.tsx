@@ -23,12 +23,12 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      <aside className="w-full md:w-64 bg-muted/40 border-r min-h-screen p-6 flex flex-col">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-primary">Admin Panel</h2>
+    <div className="flex h-screen flex-col md:flex-row overflow-hidden">
+      <aside className="w-full md:w-64 bg-muted/40 border-r flex flex-col md:h-full overflow-y-auto flex-shrink-0">
+        <div className="p-6 pb-0">
+          <h2 className="text-2xl font-bold text-primary mb-8">Admin Panel</h2>
         </div>
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-2 px-6">
           <Link href="/panel-admin/dashboard">
             <Button variant="ghost" className="w-full justify-start">
               <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
@@ -61,7 +61,7 @@ export default async function AdminLayout({
             </Button>
           </Link>
         </nav>
-        <div className="mt-auto pt-6 border-t">
+        <div className="mt-auto p-6 border-t bg-background sticky bottom-0 z-10">
           <form
             action={async () => {
               "use server";
@@ -77,7 +77,9 @@ export default async function AdminLayout({
           </form>
         </div>
       </aside>
-      <main className="flex-1 p-6 md:p-12 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto p-6 md:p-12 relative">
+        {children}
+      </main>
     </div>
   );
 }

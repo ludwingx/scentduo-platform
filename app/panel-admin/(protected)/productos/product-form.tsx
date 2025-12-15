@@ -18,6 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  OLFACTORY_FAMILIES,
+  CONCENTRATIONS,
+  GENDERS,
+  SEASONS,
+  OCCASIONS,
+  TOP_NOTES,
+  HEART_NOTES,
+  BASE_NOTES,
+} from "@/app/lib/product-constants";
 import { createBrand } from "@/app/actions/brands";
 import {
   Dialog,
@@ -27,6 +37,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 interface Brand {
   id: string;
@@ -37,7 +48,6 @@ interface Product {
   id: string;
   name: string;
   description: string;
-  category: string;
   brandId?: string | null;
   // Olfactory
   olfactoryFamily?: string | null;
@@ -76,6 +86,26 @@ export function ProductForm({
   );
   const [isBrandDialogOpen, setIsBrandDialogOpen] = useState(false);
   const [newBrandName, setNewBrandName] = useState("");
+
+  // MultiSelect States
+  const [selectedTopNotes, setSelectedTopNotes] = useState<string[]>(
+    product?.topNotes ? product.topNotes.split(",") : []
+  );
+  const [selectedHeartNotes, setSelectedHeartNotes] = useState<string[]>(
+    product?.heartNotes ? product.heartNotes.split(",") : []
+  );
+  const [selectedBaseNotes, setSelectedBaseNotes] = useState<string[]>(
+    product?.baseNotes ? product.baseNotes.split(",") : []
+  );
+  const [selectedSeasons, setSelectedSeasons] = useState<string[]>(
+    product?.season ? product.season.split(",") : []
+  );
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>(
+    product?.occasion ? product.occasion.split(",") : []
+  );
+  const [selectedGender, setSelectedGender] = useState<string[]>(
+    product?.gender ? product.gender.split(",") : []
+  );
 
   // Toggles state
   const [hasDecant, setHasDecant] = useState(product?.hasDecant ?? false);
@@ -213,16 +243,6 @@ export function ProductForm({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="category">Categoría (Interna) *</Label>
-                <Input
-                  id="category"
-                  name="category"
-                  placeholder="Ej: Perfumes"
-                  defaultValue={product?.category}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="gender">Género</Label>
                 <Select
                   name="gender"
@@ -232,9 +252,11 @@ export function ProductForm({
                     <SelectValue placeholder="Selecciona..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Masculino">Masculino</SelectItem>
-                    <SelectItem value="Femenino">Femenino</SelectItem>
-                    <SelectItem value="Unisex">Unisex</SelectItem>
+                    {GENDERS.map((gender) => (
+                      <SelectItem key={gender} value={gender}>
+                        {gender}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -264,28 +286,41 @@ export function ProductForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="olfactoryFamily">Familia Olfativa</Label>
-                <Input
-                  id="olfactoryFamily"
+                <Select
                   name="olfactoryFamily"
-                  placeholder="Ej: Amaderada Especiada"
                   defaultValue={product?.olfactoryFamily || ""}
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {OLFACTORY_FAMILIES.map((family) => (
+                      <SelectItem key={family} value={family}>
+                        {family}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="concentration">Concentración</Label>
                 <Select
                   name="concentration"
-                  defaultValue={product?.concentration || "EDP"}
+                  defaultValue={
+                    product?.concentration ||
+                    CONCENTRATIONS.find((c) => c.includes("EDP")) ||
+                    CONCENTRATIONS[0]
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Extrait">Extrait de Parfum</SelectItem>
-                    <SelectItem value="EDP">Eau de Parfum (EDP)</SelectItem>
-                    <SelectItem value="EDT">Eau de Toilette (EDT)</SelectItem>
-                    <SelectItem value="EDC">Eau de Cologne</SelectItem>
-                    <SelectItem value="Parfum">Parfum</SelectItem>
+                    {CONCENTRATIONS.map((conc) => (
+                      <SelectItem key={conc} value={conc}>
+                        {conc}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -294,50 +329,73 @@ export function ProductForm({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="topNotes">Notas de Salida</Label>
-                <Input
-                  id="topNotes"
+                <MultiSelect
+                  options={TOP_NOTES}
+                  selected={selectedTopNotes}
+                  onChange={setSelectedTopNotes}
+                  placeholder="Selecciona notas..."
+                />
+                <input
+                  type="hidden"
                   name="topNotes"
-                  placeholder="Ej: Bergamota"
-                  defaultValue={product?.topNotes || ""}
+                  value={selectedTopNotes.join(",")}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="heartNotes">Notas de Corazón</Label>
-                <Input
-                  id="heartNotes"
+                <MultiSelect
+                  options={HEART_NOTES}
+                  selected={selectedHeartNotes}
+                  onChange={setSelectedHeartNotes}
+                  placeholder="Selecciona notas..."
+                />
+                <input
+                  type="hidden"
                   name="heartNotes"
-                  placeholder="Ej: Lavanda"
-                  defaultValue={product?.heartNotes || ""}
+                  value={selectedHeartNotes.join(",")}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="baseNotes">Notas de Fondo</Label>
-                <Input
-                  id="baseNotes"
-                  name="baseNotes"
-                  placeholder="Ej: Sándalo"
-                  defaultValue={product?.baseNotes || ""}
-                />
-              </div>
+              <Label htmlFor="baseNotes">Notas de Fondo</Label>
+              <MultiSelect
+                options={BASE_NOTES}
+                selected={selectedBaseNotes}
+                onChange={setSelectedBaseNotes}
+                placeholder="Selecciona notas..."
+              />
+              <input
+                type="hidden"
+                name="baseNotes"
+                value={selectedBaseNotes.join(",")}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
                 <Label htmlFor="season">Estación</Label>
-                <Input
-                  id="season"
+                <MultiSelect
+                  options={SEASONS}
+                  selected={selectedSeasons}
+                  onChange={setSelectedSeasons}
+                  placeholder="Selecciona..."
+                />
+                <input
+                  type="hidden"
                   name="season"
-                  placeholder="Ej: Invierno"
-                  defaultValue={product?.season || ""}
+                  value={selectedSeasons.join(",")}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="occasion">Ocasión</Label>
-                <Input
-                  id="occasion"
+                <MultiSelect
+                  options={OCCASIONS}
+                  selected={selectedOccasions}
+                  onChange={setSelectedOccasions}
+                  placeholder="Selecciona..."
+                />
+                <input
+                  type="hidden"
                   name="occasion"
-                  placeholder="Ej: Noche"
-                  defaultValue={product?.occasion || ""}
+                  value={selectedOccasions.join(",")}
                 />
               </div>
             </div>

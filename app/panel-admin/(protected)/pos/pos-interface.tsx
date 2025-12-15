@@ -16,7 +16,7 @@ interface Product {
   name: string;
   brand: string | null;
   images: string[];
-  category: string;
+  // category: string; // Removed
   hasFullBottle: boolean;
   priceFull: any;
   stockFull: number;
@@ -180,9 +180,15 @@ export function PosInterface({ products }: { products: Product[] }) {
                   >
                     {product.name}
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-3">
+                  <h3
+                    className="font-semibold text-sm truncate"
+                    title={product.name}
+                  >
+                    {product.name}
+                  </h3>
+                  {/* <p className="text-xs text-muted-foreground mb-3">
                     {product.category}
-                  </p>
+                  </p> */}
 
                   <div className="mt-auto space-y-2">
                     {product.hasFullBottle && (

@@ -19,7 +19,7 @@ import { toast } from "sonner";
 interface Product {
   id: string;
   name: string;
-  category: string;
+  // category: string; // Removed
   hasDecant: boolean;
   priceDecant5ml: any;
   priceDecant10ml: any;
@@ -47,7 +47,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Producto</TableHead>
-            <TableHead>Categoría</TableHead>
+            {/* <TableHead>Categoría</TableHead> */}
             <TableHead>Decant (5ml / 10ml)</TableHead>
             <TableHead>Botella</TableHead>
             <TableHead>Estado</TableHead>
@@ -58,7 +58,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
           {products.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={5}
                 className="text-center text-muted-foreground"
               >
                 No hay productos registrados
@@ -82,7 +82,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                     <span className="font-medium">{product.name}</span>
                   </div>
                 </TableCell>
-                <TableCell>{product.category}</TableCell>
+                {/* <TableCell>{product.category}</TableCell> */}
                 <TableCell>
                   {product.hasDecant ? (
                     <div className="flex flex-col text-xs">
