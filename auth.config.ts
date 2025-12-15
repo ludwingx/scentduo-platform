@@ -21,7 +21,7 @@ export const authConfig = {
         isLoggedIn &&
         (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")
       ) {
-        return Response.redirect(new URL("/panel-admin", nextUrl));
+        return Response.redirect(new URL("/panel-admin/dashboard", nextUrl));
       }
 
       return true;

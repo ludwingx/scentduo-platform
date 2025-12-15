@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "../../product-form";
+import { getBrands } from "@/app/actions/brands";
 
 async function getProduct(id: string) {
   const product = await prisma.product.findUnique({
@@ -16,6 +17,7 @@ export default async function EditProductPage({
 }) {
   const { id } = await params;
   const product = await getProduct(id);
+  const brands = await getBrands();
 
   if (!product) {
     notFound();
@@ -30,7 +32,7 @@ export default async function EditProductPage({
         </p>
       </div>
 
-      <ProductForm product={product} />
+      <ProductForm product={product} brands={brands} />
     </div>
   );
 }

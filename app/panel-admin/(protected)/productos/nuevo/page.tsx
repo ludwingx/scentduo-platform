@@ -1,6 +1,9 @@
 import { ProductForm } from "../product-form";
+import { getBrands } from "@/app/actions/brands";
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  const brands = await getBrands();
+
   return (
     <div className="space-y-8">
       <div>
@@ -10,7 +13,7 @@ export default function NewProductPage() {
         </p>
       </div>
 
-      <ProductForm />
+      <ProductForm brands={brands} />
     </div>
   );
 }

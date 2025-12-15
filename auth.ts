@@ -3,15 +3,15 @@ export const runtime = "nodejs";
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
+
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "./auth.config";
 
-async function getUser(email: string) {
+async function getUser(username: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { username },
     });
     return user;
   } catch (error) {
@@ -25,20 +25,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
-    Google,
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
         const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
+          .object({ username: z.string(), password: z.string().min(6) })
           .safeParse(credentials);
 
         if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
-          const user = await getUser(email);
+          const { username, password } = parsedCredentials.data;
+          const user = await getUser(username);
 
           if (!user) return null;
 

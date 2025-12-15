@@ -21,7 +21,17 @@ export function RegisterForm() {
         <Input
           id="name"
           name="name"
-          placeholder="Juan Pérez"
+          required
+          className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus-visible:ring-gold/50"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="username" className="text-gray-300">
+          Usuario
+        </Label>
+        <Input
+          id="username"
+          name="username"
           required
           className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus-visible:ring-gold/50"
         />

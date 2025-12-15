@@ -1,5 +1,3 @@
-export const runtime = "nodejs";
-
 "use server";
 
 import { signIn } from "@/auth";
@@ -31,22 +29,31 @@ export async function register(
   formData: FormData
 ) {
   const name = formData.get("name") as string;
+  const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  if (!email || !password || !name) {
+  if (!email || !password || !name || !username) {
     return "Faltan campos requeridos.";
   }
 
   try {
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return "El usuario ya existe.";
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) {
+      return "El email ya está registrado.";
+    }
+
+    const existingUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+    if (existingUsername) {
+      return "El nombre de usuario ya está en uso.";
     }
 
     await prisma.user.create({
       data: {
         name,
+        username,
         email,
         password, // TODO: Hash password in production
         role: "USER",
@@ -58,8 +65,4 @@ export async function register(
   }
 
   redirect("/login?registered=true");
-}
-
-export async function loginWithProvider(provider: string) {
-  await signIn(provider, { redirectTo: "/" });
 }

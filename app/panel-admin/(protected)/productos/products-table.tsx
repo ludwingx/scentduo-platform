@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, History } from "lucide-react";
 import { deleteProduct } from "@/app/actions/products";
 import { toast } from "sonner";
 
@@ -20,7 +20,10 @@ interface Product {
   id: string;
   name: string;
   category: string;
-  priceDecant: any;
+  hasDecant: boolean;
+  priceDecant5ml: any;
+  priceDecant10ml: any;
+  hasFullBottle: boolean;
   priceFull: any;
   images: string[];
   isActive: boolean;
@@ -45,8 +48,8 @@ export function ProductsTable({ products }: { products: Product[] }) {
           <TableRow>
             <TableHead>Producto</TableHead>
             <TableHead>Categoría</TableHead>
-            <TableHead>Precio Decant</TableHead>
-            <TableHead>Precio Full</TableHead>
+            <TableHead>Decant (5ml / 10ml)</TableHead>
+            <TableHead>Botella</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
@@ -81,10 +84,35 @@ export function ProductsTable({ products }: { products: Product[] }) {
                 </TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>
-                  {product.priceDecant ? `Bs ${product.priceDecant}` : "-"}
+                  {product.hasDecant ? (
+                    <div className="flex flex-col text-xs">
+                      <span>
+                        5ml:{" "}
+                        {product.priceDecant5ml
+                          ? `Bs ${product.priceDecant5ml}`
+                          : "-"}
+                      </span>
+                      <span>
+                        10ml:{" "}
+                        {product.priceDecant10ml
+                          ? `Bs ${product.priceDecant10ml}`
+                          : "-"}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">
+                      No disponible
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>
-                  {product.priceFull ? `Bs ${product.priceFull}` : "-"}
+                  {product.hasFullBottle && product.priceFull ? (
+                    `Bs ${product.priceFull}`
+                  ) : (
+                    <span className="text-muted-foreground text-xs">
+                      No disponible
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant={product.isActive ? "default" : "secondary"}>
@@ -93,6 +121,17 @@ export function ProductsTable({ products }: { products: Product[] }) {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
+                    <Link
+                      href={`/panel-admin/productos/${product.id}/historial`}
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Historial de Precios"
+                      >
+                        <History className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Link href={`/panel-admin/productos/${product.id}/editar`}>
                       <Button variant="ghost" size="icon">
                         <Edit className="h-4 w-4" />

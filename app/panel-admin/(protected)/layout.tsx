@@ -2,7 +2,15 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Package, FileText, LayoutDashboard, LogOut } from "lucide-react";
+import {
+  Package,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  ClipboardList,
+  ShoppingBag,
+  Store,
+} from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -34,6 +42,22 @@ export default async function AdminLayout({
           <Link href="/panel-admin/comprobantes">
             <Button variant="ghost" className="w-full justify-start">
               <FileText className="mr-2 h-4 w-4" /> Comprobantes
+            </Button>
+          </Link>
+          <div className="my-2 border-t border-border/50" />
+          <Link href="/panel-admin/inventario">
+            <Button variant="ghost" className="w-full justify-start">
+              <ClipboardList className="mr-2 h-4 w-4" /> Inventario
+            </Button>
+          </Link>
+          <Link href="/panel-admin/compras">
+            <Button variant="ghost" className="w-full justify-start">
+              <ShoppingBag className="mr-2 h-4 w-4" /> Compras
+            </Button>
+          </Link>
+          <Link href="/panel-admin/pos">
+            <Button variant="ghost" className="w-full justify-start">
+              <Store className="mr-2 h-4 w-4" /> Punto de Venta
             </Button>
           </Link>
         </nav>
