@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +11,7 @@ import { UploadButton } from "@/lib/uploadthing";
 import { createProduct, updateProduct } from "@/app/actions/products";
 import { toast } from "sonner";
 import Image from "next/image";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   OLFACTORY_FAMILIES,
   CONCENTRATIONS,
@@ -65,6 +74,12 @@ interface Product {
   priceDecant10ml: any;
   hasFullBottle: boolean;
   priceFull: any;
+  fullBottleSize?: string | null;
+  stockFull: number;
+  bottleVariants?: { sizeMl: number; price: any; stock: number }[];
+  // Decants stock
+  stockDecant5ml: number;
+  stockDecant10ml: number;
   // Metadata
   images: string[];
   isActive: boolean;
@@ -78,6 +93,7 @@ export function ProductForm({
   product?: Product;
   brands?: Brand[];
 }) {
+  const router = useRouter();
   const [images, setImages] = useState<string[]>(product?.images || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localBrands, setLocalBrands] = useState<Brand[]>(brands);
@@ -86,6 +102,27 @@ export function ProductForm({
   );
   const [isBrandDialogOpen, setIsBrandDialogOpen] = useState(false);
   const [newBrandName, setNewBrandName] = useState("");
+
+  const getServerActionErrorMessage = (res: unknown) => {
+    const fallback = "Revisa los campos e inténtalo nuevamente";
+    if (!res || typeof res !== "object") return fallback;
+
+    const anyRes = res as any;
+    if (typeof anyRes.message === "string" && anyRes.message.trim()) {
+      return anyRes.message;
+    }
+
+    const errors = anyRes.errors;
+    if (!errors || typeof errors !== "object") return fallback;
+
+    const firstError = Object.values(errors)
+      .flatMap((v) => (Array.isArray(v) ? v : []))
+      .find((msg) => typeof msg === "string" && msg.trim());
+
+    return typeof firstError === "string" && firstError.trim()
+      ? firstError
+      : fallback;
+  };
 
   // MultiSelect States
   const [selectedTopNotes, setSelectedTopNotes] = useState<string[]>(
@@ -113,6 +150,42 @@ export function ProductForm({
     product?.hasFullBottle ?? true
   );
 
+  const [bottleVariants, setBottleVariants] = useState<
+    { sizeMl: string; price: string; stock: string }[]
+  >(() => {
+    if (product?.bottleVariants && product.bottleVariants.length > 0) {
+      return [...product.bottleVariants]
+        .sort((a, b) => a.sizeMl - b.sizeMl)
+        .map((v) => ({
+          sizeMl: String(v.sizeMl),
+          price: v.price ? String(v.price) : "",
+          stock: String(v.stock ?? 0),
+        }));
+    }
+
+    if (product?.hasFullBottle && product.priceFull && product.fullBottleSize) {
+      const sizeMl = parseInt(
+        String(product.fullBottleSize).replace(/[^0-9]/g, ""),
+        10
+      );
+      return [
+        {
+          sizeMl: Number.isFinite(sizeMl) && sizeMl > 0 ? String(sizeMl) : "100",
+          price: String(product.priceFull),
+          stock: String(product.stockFull ?? 0),
+        },
+      ];
+    }
+
+    return [];
+  });
+
+  // Default stocks
+  // If product exists, use its values, else 0
+  const defaultStockFull = product?.stockFull ?? 0;
+  const defaultStockDecant5ml = product?.stockDecant5ml ?? 0;
+  const defaultStockDecant10ml = product?.stockDecant10ml ?? 0;
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -123,16 +196,35 @@ export function ProductForm({
       formData.set("brandId", selectedBrand);
     }
 
+    formData.set("bottleVariants", JSON.stringify(bottleVariants));
+
     try {
       if (product) {
-        await updateProduct(product.id, formData);
+        const res = await updateProduct(product.id, formData);
+        if (res && typeof res === "object" && "success" in res && res.success === false) {
+          toast.error(getServerActionErrorMessage(res));
+          return;
+        }
       } else {
-        await createProduct(formData);
+        const res = await createProduct(formData);
+        if (res && typeof res === "object" && "success" in res && res.success === false) {
+          toast.error(getServerActionErrorMessage(res));
+          return;
+        }
       }
     } catch (error) {
+      const digest = (error as any)?.digest;
+      if (typeof digest === "string" && digest.startsWith("NEXT_REDIRECT")) {
+        throw error;
+      }
       toast.error("Error al guardar el producto");
+      console.error(error);
+    } finally {
       setIsSubmitting(false);
     }
+
+    router.push("/panel-admin/productos");
+    router.refresh();
   };
 
   const handleCreateBrand = async () => {
@@ -154,6 +246,32 @@ export function ProductForm({
 
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+  };
+
+  const addBottleVariantRow = () => {
+    setBottleVariants((prev) => {
+      const maxSize = prev.reduce((acc, v) => {
+        const n = Number(v.sizeMl);
+        return Number.isFinite(n) ? Math.max(acc, n) : acc;
+      }, 0);
+
+      const nextSize = maxSize > 0 ? maxSize + 25 : 100;
+      return [...prev, { sizeMl: String(nextSize), price: "", stock: "0" }];
+    });
+  };
+
+  const updateBottleVariant = (
+    index: number,
+    field: "sizeMl" | "price" | "stock",
+    value: string
+  ) => {
+    setBottleVariants((prev) =>
+      prev.map((v, i) => (i === index ? { ...v, [field]: value } : v))
+    );
+  };
+
+  const removeBottleVariantRow = (index: number) => {
+    setBottleVariants((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -483,22 +601,163 @@ export function ProductForm({
                     </Label>
                   </div>
                   {hasFullBottle && (
-                    <div className="pl-6">
-                      <Label
-                        htmlFor="priceFull"
-                        className="text-xs text-muted-foreground"
-                      >
-                        Precio (Bs)
-                      </Label>
-                      <Input
-                        id="priceFull"
-                        name="priceFull"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        className="mt-1"
-                        defaultValue={product?.priceFull?.toString()}
-                      />
+                    <div className="pl-6 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <Label
+                            htmlFor="priceFull"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Precio (Bs)
+                          </Label>
+                          <Input
+                            id="priceFull"
+                            name="priceFull"
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            className="mt-1"
+                            defaultValue={product?.priceFull?.toString()}
+                          />
+                        </div>
+                        <div>
+                          <Label
+                            htmlFor="fullBottleSize"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Tamaño (ml)
+                          </Label>
+                          <Input
+                            id="fullBottleSize"
+                            name="fullBottleSize"
+                            type="text"
+                            placeholder="Ej: 100ml"
+                            className="mt-1"
+                            defaultValue={product?.fullBottleSize || "100ml"}
+                          />
+                        </div>
+                        <div>
+                          <Label
+                            htmlFor="stockFull"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Stock (Unidades)
+                          </Label>
+                          <Input
+                            id="stockFull"
+                            name="stockFull"
+                            type="number"
+                            placeholder="0"
+                            className="mt-1"
+                            defaultValue={defaultStockFull}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="font-medium">
+                            Presentaciones (ml / precio / stock)
+                          </Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addBottleVariantRow}
+                          >
+                            <Plus className="mr-2 h-4 w-4" /> Agregar
+                          </Button>
+                        </div>
+
+                        <input
+                          type="hidden"
+                          name="bottleVariants"
+                          value={JSON.stringify(bottleVariants)}
+                        />
+
+                        <div className="rounded-md border">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Tamaño (ml)</TableHead>
+                                <TableHead>Precio (Bs)</TableHead>
+                                <TableHead>Stock</TableHead>
+                                <TableHead className="text-right">
+                                  Acción
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {bottleVariants.length === 0 ? (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={4}
+                                    className="text-center text-muted-foreground"
+                                  >
+                                    Sin presentaciones
+                                  </TableCell>
+                                </TableRow>
+                              ) : (
+                                bottleVariants.map((v, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell>
+                                      <Input
+                                        type="number"
+                                        value={v.sizeMl}
+                                        onChange={(e) =>
+                                          updateBottleVariant(
+                                            index,
+                                            "sizeMl",
+                                            e.target.value
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        value={v.price}
+                                        onChange={(e) =>
+                                          updateBottleVariant(
+                                            index,
+                                            "price",
+                                            e.target.value
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Input
+                                        type="number"
+                                        value={v.stock}
+                                        onChange={(e) =>
+                                          updateBottleVariant(
+                                            index,
+                                            "stock",
+                                            e.target.value
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-destructive hover:text-destructive"
+                                        onClick={() => removeBottleVariantRow(index)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -524,40 +783,79 @@ export function ProductForm({
                     </Label>
                   </div>
                   {hasDecant && (
-                    <div className="pl-6 grid grid-cols-2 gap-3">
-                      <div>
-                        <Label
-                          htmlFor="priceDecant5ml"
-                          className="text-xs text-muted-foreground"
-                        >
-                          5ml (Bs)
-                        </Label>
-                        <Input
-                          id="priceDecant5ml"
-                          name="priceDecant5ml"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          className="mt-1"
-                          defaultValue={product?.priceDecant5ml?.toString()}
-                        />
+                    <div className="pl-6 space-y-4">
+                      {/* 5ml Section */}
+                      <div className="grid grid-cols-2 gap-3 items-end border-b pb-3">
+                        <div>
+                          <Label
+                            htmlFor="priceDecant5ml"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Precio 5ml (Bs)
+                          </Label>
+                          <Input
+                            id="priceDecant5ml"
+                            name="priceDecant5ml"
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            className="mt-1"
+                            defaultValue={product?.priceDecant5ml?.toString()}
+                          />
+                        </div>
+                        <div>
+                          <Label
+                            htmlFor="stockDecant5ml"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Stock 5ml
+                          </Label>
+                          <Input
+                            id="stockDecant5ml"
+                            name="stockDecant5ml"
+                            type="number"
+                            placeholder="0"
+                            className="mt-1"
+                            defaultValue={defaultStockDecant5ml}
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label
-                          htmlFor="priceDecant10ml"
-                          className="text-xs text-muted-foreground"
-                        >
-                          10ml (Bs)
-                        </Label>
-                        <Input
-                          id="priceDecant10ml"
-                          name="priceDecant10ml"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          className="mt-1"
-                          defaultValue={product?.priceDecant10ml?.toString()}
-                        />
+
+                      {/* 10ml Section */}
+                      <div className="grid grid-cols-2 gap-3 items-end">
+                        <div>
+                          <Label
+                            htmlFor="priceDecant10ml"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Precio 10ml (Bs)
+                          </Label>
+                          <Input
+                            id="priceDecant10ml"
+                            name="priceDecant10ml"
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            className="mt-1"
+                            defaultValue={product?.priceDecant10ml?.toString()}
+                          />
+                        </div>
+                        <div>
+                          <Label
+                            htmlFor="stockDecant10ml"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Stock 10ml
+                          </Label>
+                          <Input
+                            id="stockDecant10ml"
+                            name="stockDecant10ml"
+                            type="number"
+                            placeholder="0"
+                            className="mt-1"
+                            defaultValue={defaultStockDecant10ml}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -631,8 +929,8 @@ export function ProductForm({
                 {isSubmitting
                   ? "Guardando..."
                   : product
-                  ? "Actualizar Producto"
-                  : "Crear Producto"}
+                    ? "Actualizar Producto"
+                    : "Crear Producto"}
               </Button>
             </div>
           </CardContent>

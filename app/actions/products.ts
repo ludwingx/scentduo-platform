@@ -6,6 +6,42 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 
+function parseBottleVariants(input: unknown) {
+  if (!input || typeof input !== "string") return [];
+
+  try {
+    const parsed = JSON.parse(input);
+    if (!Array.isArray(parsed)) return [];
+
+    const cleaned = parsed
+      .map((v) => {
+        const sizeMl = Number(v?.sizeMl);
+        const price = Number(v?.price);
+        const stock = Number(v?.stock);
+
+        if (!Number.isFinite(sizeMl) || sizeMl <= 0) return null;
+        if (!Number.isFinite(price) || price <= 0) return null;
+        if (!Number.isFinite(stock) || stock < 0) return null;
+
+        return {
+          sizeMl: Math.trunc(sizeMl),
+          price,
+          stock: Math.trunc(stock),
+        };
+      })
+      .filter(Boolean) as { sizeMl: number; price: number; stock: number }[];
+
+    const uniq = new Map<number, { sizeMl: number; price: number; stock: number }>();
+    for (const v of cleaned) {
+      uniq.set(v.sizeMl, v);
+    }
+
+    return Array.from(uniq.values()).sort((a, b) => a.sizeMl - b.sizeMl);
+  } catch {
+    return [];
+  }
+}
+
 // Schema for form validation
 const productSchema = z.object({
   name: z.string().min(2, "El nombre es requerido"),
@@ -30,6 +66,11 @@ const productSchema = z.object({
   priceDecant10ml: z.string().optional(),
   hasFullBottle: z.string().optional(),
   priceFull: z.string().optional(),
+  fullBottleSize: z.string().optional(),
+  stockFull: z.string().optional(),
+  stockDecant5ml: z.string().optional(),
+  stockDecant10ml: z.string().optional(),
+  bottleVariants: z.string().optional(),
   // Metadata
   images: z.string(),
   isActive: z.string().optional(),
@@ -56,6 +97,11 @@ export async function createProduct(formData: FormData) {
     priceDecant10ml: formData.get("priceDecant10ml"),
     hasFullBottle: formData.get("hasFullBottle"),
     priceFull: formData.get("priceFull"),
+    fullBottleSize: formData.get("fullBottleSize"),
+    stockFull: formData.get("stockFull"),
+    stockDecant5ml: formData.get("stockDecant5ml"),
+    stockDecant10ml: formData.get("stockDecant10ml"),
+    bottleVariants: formData.get("bottleVariants"),
     images: formData.get("images"),
     isActive: formData.get("isActive"),
     isFeatured: formData.get("isFeatured"),
@@ -73,6 +119,9 @@ export async function createProduct(formData: FormData) {
   const images = validatedFields.data.images
     ? validatedFields.data.images.split(",").filter(Boolean)
     : [];
+
+  const bottleVariants = parseBottleVariants(validatedFields.data.bottleVariants);
+  const firstBottleVariant = bottleVariants[0] || null;
 
   try {
     await prisma.product.create({
@@ -97,11 +146,40 @@ export async function createProduct(formData: FormData) {
         priceDecant10ml: validatedFields.data.priceDecant10ml
           ? parseFloat(validatedFields.data.priceDecant10ml)
           : null,
+        stockDecant5ml: validatedFields.data.stockDecant5ml
+          ? parseInt(validatedFields.data.stockDecant5ml)
+          : 0,
+        stockDecant10ml: validatedFields.data.stockDecant10ml
+          ? parseInt(validatedFields.data.stockDecant10ml)
+          : 0,
 
         hasFullBottle: validatedFields.data.hasFullBottle === "on",
-        priceFull: validatedFields.data.priceFull
-          ? parseFloat(validatedFields.data.priceFull)
-          : null,
+        priceFull: firstBottleVariant
+          ? firstBottleVariant.price
+          : validatedFields.data.priceFull
+            ? parseFloat(validatedFields.data.priceFull)
+            : null,
+        fullBottleSize: firstBottleVariant
+          ? `${firstBottleVariant.sizeMl}ml`
+          : validatedFields.data.fullBottleSize || null,
+        stockFull: firstBottleVariant
+          ? firstBottleVariant.stock
+          : validatedFields.data.stockFull
+            ? parseInt(validatedFields.data.stockFull)
+            : 0,
+
+        bottleVariants:
+          validatedFields.data.hasFullBottle === "on" && bottleVariants.length > 0
+            ? {
+                createMany: {
+                  data: bottleVariants.map((v) => ({
+                    sizeMl: v.sizeMl,
+                    price: v.price,
+                    stock: v.stock,
+                  })),
+                },
+              }
+            : undefined,
 
         images,
         isActive: validatedFields.data.isActive === "on",
@@ -143,6 +221,11 @@ export async function updateProduct(id: string, formData: FormData) {
     priceDecant10ml: formData.get("priceDecant10ml"),
     hasFullBottle: formData.get("hasFullBottle"),
     priceFull: formData.get("priceFull"),
+    fullBottleSize: formData.get("fullBottleSize"),
+    stockFull: formData.get("stockFull"),
+    stockDecant5ml: formData.get("stockDecant5ml"),
+    stockDecant10ml: formData.get("stockDecant10ml"),
+    bottleVariants: formData.get("bottleVariants"),
     images: formData.get("images"),
     isActive: formData.get("isActive"),
     isFeatured: formData.get("isFeatured"),
@@ -161,14 +244,19 @@ export async function updateProduct(id: string, formData: FormData) {
     ? validatedFields.data.images.split(",").filter(Boolean)
     : [];
 
+  const bottleVariants = parseBottleVariants(validatedFields.data.bottleVariants);
+  const firstBottleVariant = bottleVariants[0] || null;
+
   try {
     const currentProduct = await prisma.product.findUnique({ where: { id } });
     if (!currentProduct) throw new Error("Producto no encontrado");
 
     // Prepare new values
-    const newPriceFull = validatedFields.data.priceFull
-      ? parseFloat(validatedFields.data.priceFull)
-      : null;
+    const newPriceFull = firstBottleVariant
+      ? firstBottleVariant.price
+      : validatedFields.data.priceFull
+        ? parseFloat(validatedFields.data.priceFull)
+        : null;
     const newPriceDecant5ml = validatedFields.data.priceDecant5ml
       ? parseFloat(validatedFields.data.priceDecant5ml)
       : null;
@@ -234,15 +322,41 @@ export async function updateProduct(id: string, formData: FormData) {
           hasDecant: validatedFields.data.hasDecant === "on",
           priceDecant5ml: newPriceDecant5ml,
           priceDecant10ml: newPriceDecant10ml,
+          stockDecant5ml: validatedFields.data.stockDecant5ml
+          ? parseInt(validatedFields.data.stockDecant5ml)
+          : 0,
+          stockDecant10ml: validatedFields.data.stockDecant10ml
+          ? parseInt(validatedFields.data.stockDecant10ml)
+          : 0,
 
           hasFullBottle: validatedFields.data.hasFullBottle === "on",
           priceFull: newPriceFull,
+          fullBottleSize: firstBottleVariant
+            ? `${firstBottleVariant.sizeMl}ml`
+            : validatedFields.data.fullBottleSize || null,
+          stockFull: firstBottleVariant
+            ? firstBottleVariant.stock
+            : validatedFields.data.stockFull
+              ? parseInt(validatedFields.data.stockFull)
+              : 0,
 
           images,
           isActive: validatedFields.data.isActive === "on",
           isFeatured: validatedFields.data.isFeatured === "on",
         },
       });
+
+      await tx.productBottleVariant.deleteMany({ where: { productId: id } });
+      if (validatedFields.data.hasFullBottle === "on" && bottleVariants.length > 0) {
+        await tx.productBottleVariant.createMany({
+          data: bottleVariants.map((v) => ({
+            productId: id,
+            sizeMl: v.sizeMl,
+            price: v.price,
+            stock: v.stock,
+          })),
+        });
+      }
     });
 
     revalidatePath("/panel-admin/productos");

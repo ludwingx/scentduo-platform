@@ -12,7 +12,7 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { useEffect, useMemo, useState } from "react";
 
 interface CartSidebarProps {
   open?: boolean;
@@ -26,6 +26,92 @@ export default function CartSidebar({
   children,
 }: CartSidebarProps) {
   const { items, removeItem, updateQuantity, total } = useCartStore();
+
+  const [checkoutConfig, setCheckoutConfig] = useState<{
+    whatsappNumber: string;
+    introText: string | null;
+    paymentMethods: string | null;
+    outroText: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/checkout-config")
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (!data || typeof data !== "object") return;
+        setCheckoutConfig({
+          whatsappNumber: String(data.whatsappNumber || ""),
+          introText: data.introText ?? null,
+          paymentMethods: data.paymentMethods ?? null,
+          outroText: data.outroText ?? null,
+        });
+      })
+      .catch(() => {
+        // ignore; fallback is env
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const fallbackWhatsappNumber =
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "591XXXXXXXX";
+
+  const whatsappNumber =
+    checkoutConfig?.whatsappNumber || fallbackWhatsappNumber;
+
+  const introText =
+    (checkoutConfig?.introText || "").trim() || "Hola! Quiero este pedido:";
+
+  const paymentMethodsText = (checkoutConfig?.paymentMethods || "").trim();
+  const outroText = (checkoutConfig?.outroText || "").trim();
+
+  const orderLines = useMemo(() => {
+    return items
+      .map((item) => {
+        const variantLabel =
+          item.variant === "decant-5ml"
+            ? "Decant 5ml"
+            : item.variant === "decant-10ml"
+              ? "Decant 10ml"
+              : "Botella Full";
+
+        return `- ${item.name} (${variantLabel}) x${item.quantity} = Bs ${
+          item.price * item.quantity
+        }`;
+      })
+      .join("\n");
+  }, [items]);
+
+  const handleCheckout = () => {
+    const blocks: string[] = [];
+    blocks.push(introText);
+    blocks.push("");
+    blocks.push(orderLines);
+    blocks.push("");
+    blocks.push(`Total: Bs ${total()}`);
+
+    if (paymentMethodsText) {
+      blocks.push("");
+      blocks.push("Métodos de pago:");
+      blocks.push(paymentMethodsText);
+    }
+
+    blocks.push("");
+    blocks.push(outroText || "Mi nombre: ...\nMi celular: ...");
+
+    const message = blocks.join("\n");
+
+    const encodedMessage = encodeURIComponent(message);
+    window.open(
+      `https://wa.me/${whatsappNumber}?text=${encodedMessage}`,
+      "_blank"
+    );
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -69,9 +155,11 @@ export default function CartSidebar({
                           {item.name}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {item.variant === "decant"
-                            ? "Decant 10ml"
-                            : "Botella Full"}
+                          {item.variant === "decant-5ml"
+                            ? "Decant 5ml"
+                            : item.variant === "decant-10ml"
+                              ? "Decant 10ml"
+                              : "Botella Full"}
                         </p>
                       </div>
                       <div className="flex items-center justify-between">
@@ -136,8 +224,8 @@ export default function CartSidebar({
               <span>Total</span>
               <span>Bs {total()}</span>
             </div>
-            <Button className="w-full" size="lg">
-              Proceder al pago
+            <Button className="w-full" size="lg" onClick={handleCheckout}>
+              Finalizar Pedido por WhatsApp
             </Button>
           </div>
         )}

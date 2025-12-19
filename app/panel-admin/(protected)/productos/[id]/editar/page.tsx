@@ -6,6 +6,11 @@ import { getBrands } from "@/app/actions/brands";
 async function getProduct(id: string) {
   const product = await prisma.product.findUnique({
     where: { id },
+    include: {
+      bottleVariants: {
+        orderBy: { sizeMl: "asc" },
+      },
+    },
   });
   return product;
 }

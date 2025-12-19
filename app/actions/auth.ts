@@ -50,13 +50,23 @@ export async function register(
       return "El nombre de usuario ya está en uso.";
     }
 
+    const adminEmails = (
+      process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || ""
+    )
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+
+    const usersCount = await prisma.user.count();
+    const isAdmin = adminEmails.includes(email.toLowerCase()) || usersCount === 0;
+
     await prisma.user.create({
       data: {
         name,
         username,
         email,
         password, // TODO: Hash password in production
-        role: "USER",
+        role: isAdmin ? "ADMIN" : "USER",
       },
     });
   } catch (error) {
