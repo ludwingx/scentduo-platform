@@ -3,6 +3,7 @@ import { Cinzel, Lato } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import FloatingCartButton from "./(public)/components/FloatingCartButton";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -27,11 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className={`${cinzel.variable} ${lato.variable} antialiased`}>
-        {children}
-        <FloatingCartButton />
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <FloatingCartButton />
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

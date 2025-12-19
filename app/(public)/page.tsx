@@ -123,7 +123,7 @@ export default function HomePage() {
               <Link href="/catalogo">
                 <Button
                   size="default"
-                  className="w-full sm:w-auto px-10 py-7 rounded-full bg-gold text-black hover:opacity-90 font-bold text-lg shadow-xl hover:shadow-gold/20 transition-all"
+                  className="w-full cursor-pointer hover:opacity-90 sm:w-auto px-10 py-7 rounded-full bg-gold text-black hover:opacity-90 font-bold text-lg shadow-xl hover:shadow-gold/20 transition-all"
                 >
                   Explorar Catálogo
                 </Button>
@@ -174,7 +174,7 @@ export default function HomePage() {
                   href={`/producto/${FEATURED_HERO_PRODUCT.id}`}
                   className="w-full mt-2"
                 >
-                  <Button className="w-full py-2 sm:py-3 rounded-full bg-gold text-black hover:bg-gold/90 font-bold flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg">
+                  <Button className="w-full cursor-pointer hover:opacity-90 py-2 sm:py-3 rounded-full bg-gold text-black hover:bg-gold/90 font-bold flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg">
                     <ShoppingCart className="h-4 w-4" />
                     Comprar Ahora
                   </Button>

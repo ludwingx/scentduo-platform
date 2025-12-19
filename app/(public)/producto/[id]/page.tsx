@@ -1,9 +1,36 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PLACEHOLDER_IMAGE } from "@/app/(public)/constants";
 import { AddToCartButtons } from "./add-to-cart-buttons";
+import { prisma } from "@/lib/prisma";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
+type ProductView = {
+  id: string;
+  name: string;
+  description: string;
+  images: string[];
+  gender: string | null;
+  brandName: string | null;
+  concentration: string | null;
+  hasDecant: boolean;
+  priceDecant5ml: number | null;
+  priceDecant10ml: number | null;
+  stockDecant5ml: number;
+  stockDecant10ml: number;
+  hasFullBottle: boolean;
+  priceFull: number | null;
+  fullBottleSize: string | null;
+  stockFull: number;
+};
 
 // Mock data lookup
 const PRODUCTS = [
@@ -71,82 +98,259 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = PRODUCTS.find((p) => p.id === id);
+  const dbProduct = await prisma.product.findUnique({
+    where: { id },
+    include: { brand: true },
+  });
 
-  if (!product) {
+  const mockProduct = PRODUCTS.find((p) => p.id === id);
+
+  if (!dbProduct && !mockProduct) {
     notFound();
   }
 
+  const product: ProductView = dbProduct
+    ? {
+        id: dbProduct.id,
+        name: dbProduct.name,
+        description: dbProduct.description,
+        images: dbProduct.images,
+        brandName: dbProduct.brand?.name ?? null,
+        concentration: dbProduct.concentration ?? null,
+        gender: dbProduct.gender ?? null,
+        hasDecant: dbProduct.hasDecant,
+        priceDecant5ml: dbProduct.priceDecant5ml
+          ? Number(dbProduct.priceDecant5ml)
+          : null,
+        priceDecant10ml: dbProduct.priceDecant10ml
+          ? Number(dbProduct.priceDecant10ml)
+          : null,
+        stockDecant5ml: dbProduct.stockDecant5ml,
+        stockDecant10ml: dbProduct.stockDecant10ml,
+        hasFullBottle: dbProduct.hasFullBottle,
+        priceFull: dbProduct.priceFull ? Number(dbProduct.priceFull) : null,
+        fullBottleSize: dbProduct.fullBottleSize ?? null,
+        stockFull: dbProduct.stockFull,
+      }
+    : {
+        id: mockProduct!.id,
+        name: mockProduct!.name,
+        description: mockProduct!.description,
+        images: mockProduct!.images,
+        gender: mockProduct!.category ?? null,
+        brandName: null,
+        concentration: null,
+        hasDecant: !!mockProduct!.priceDecant,
+        priceDecant5ml: null,
+        priceDecant10ml: mockProduct!.priceDecant ? Number(mockProduct!.priceDecant) : null,
+        stockDecant5ml: 0,
+        stockDecant10ml: mockProduct!.priceDecant ? 1 : 0,
+        hasFullBottle: !!mockProduct!.priceFull,
+        priceFull: mockProduct!.priceFull ? Number(mockProduct!.priceFull) : null,
+        fullBottleSize: null,
+        stockFull: mockProduct!.priceFull ? 1 : 0,
+      };
+
+  const mainImage = product.images?.[0] || PLACEHOLDER_IMAGE;
+
+  const hasDecant5ml =
+    product.hasDecant &&
+    (product.stockDecant5ml || 0) > 0 &&
+    !!product.priceDecant5ml;
+  const hasDecant10ml =
+    product.hasDecant &&
+    (product.stockDecant10ml || 0) > 0 &&
+    !!product.priceDecant10ml;
+  const hasFullBottle =
+    product.hasFullBottle &&
+    (product.stockFull || 0) > 0 &&
+    !!product.priceFull;
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div className="container mx-auto px-4 py-10 lg:py-16">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
         {/* Images */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl border bg-muted">
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className="object-cover"
-            priority
-          />
+        <div className="lg:sticky lg:top-24">
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="relative aspect-square w-full bg-muted">
+                <Image
+                  src={mainImage}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Details */}
-        <div className="flex flex-col justify-center space-y-6">
-          <div>
-            <Badge
-              variant="outline"
-              className="mb-2 border-primary text-primary"
-            >
-              {product.category}
-            </Badge>
-            <h1 className="text-4xl font-serif font-bold tracking-tight mb-4">
-              {product.name}
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              {product.description}
-            </p>
-          </div>
+        <div className="flex flex-col justify-center gap-6">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-wrap items-center gap-2">
+                {product.gender && (
+                  <Badge variant="outline" className="border-primary text-primary">
+                    {product.gender}
+                  </Badge>
+                )}
+                {product.brandName && (
+                  <Badge variant="secondary">{product.brandName}</Badge>
+                )}
+                {product.concentration && (
+                  <Badge variant="secondary">{product.concentration}</Badge>
+                )}
+              </div>
 
-          <div className="space-y-4 pt-4 border-t border-border">
-            <h3 className="text-lg font-serif font-semibold">
-              Opciones de compra:
-            </h3>
-            <div className="grid gap-4">
-              {product.priceDecant && (
-                <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
-                  <div>
-                    <span className="font-medium block">Decant 10ml</span>
-                    <span className="text-sm text-muted-foreground">
-                      Ideal para probar
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xl font-bold block">
-                      Bs {product.priceDecant}
-                    </span>
+              <CardTitle className="text-3xl font-serif font-bold tracking-tight md:text-4xl">
+                {product.name}
+              </CardTitle>
+
+              <CardDescription className="text-base leading-relaxed">
+                {product.description}
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-sm font-medium">Disponibilidad</div>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Badge
+                      variant="outline"
+                      className={
+                        (product.stockDecant5ml || 0) > 0
+                          ? "border-emerald-500/40 text-emerald-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      5ml: {product.stockDecant5ml}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={
+                        (product.stockDecant10ml || 0) > 0
+                          ? "border-emerald-500/40 text-emerald-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      10ml: {product.stockDecant10ml}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={
+                        (product.stockFull || 0) > 0
+                          ? "border-emerald-500/40 text-emerald-600"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      Full: {product.stockFull}
+                    </Badge>
                   </div>
                 </div>
-              )}
-              {product.priceFull && (
-                <div className="flex items-center justify-between p-4 rounded-lg border bg-card/50">
-                  <div>
-                    <span className="font-medium block">Botella Full</span>
-                    <span className="text-sm text-muted-foreground">
-                      Presentación original
-                    </span>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border bg-muted/30 p-3">
+                    <div className="text-xs text-muted-foreground">Marca</div>
+                    <div className="font-medium">
+                      {product.brandName || "—"}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-xl font-bold block">
-                      Bs {product.priceFull}
-                    </span>
+                  <div className="rounded-lg border bg-muted/30 p-3">
+                    <div className="text-xs text-muted-foreground">Concentración</div>
+                    <div className="font-medium">
+                      {product.concentration || "—"}
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          <AddToCartButtons product={product} />
+              <div className="space-y-4">
+                <div className="text-sm font-medium">Opciones de compra</div>
+
+                <div className="grid gap-3">
+                  <div
+                    className={
+                      hasDecant5ml
+                        ? "flex items-start justify-between gap-6 rounded-lg border bg-card/50 p-4"
+                        : "flex items-start justify-between gap-6 rounded-lg border bg-muted/20 p-4 opacity-60"
+                    }
+                  >
+                    <div>
+                      <div className="font-medium">Decant 5ml</div>
+                      <div className="text-sm text-muted-foreground">
+                        Ideal para probar
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Stock: {product.stockDecant5ml}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold">
+                        {product.priceDecant5ml ? `Bs ${product.priceDecant5ml}` : "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={
+                      hasDecant10ml
+                        ? "flex items-start justify-between gap-6 rounded-lg border bg-card/50 p-4"
+                        : "flex items-start justify-between gap-6 rounded-lg border bg-muted/20 p-4 opacity-60"
+                    }
+                  >
+                    <div>
+                      <div className="font-medium">Decant 10ml</div>
+                      <div className="text-sm text-muted-foreground">
+                        Más rendimiento
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Stock: {product.stockDecant10ml}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold">
+                        {product.priceDecant10ml ? `Bs ${product.priceDecant10ml}` : "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={
+                      hasFullBottle
+                        ? "flex items-start justify-between gap-6 rounded-lg border bg-card/50 p-4"
+                        : "flex items-start justify-between gap-6 rounded-lg border bg-muted/20 p-4 opacity-60"
+                    }
+                  >
+                    <div>
+                      <div className="font-medium">
+                        Botella Full{product.fullBottleSize ? ` ${product.fullBottleSize}` : ""}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {product.fullBottleSize
+                          ? `Presentación ${product.fullBottleSize}`
+                          : "Presentación original"}
+                      </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Stock: {product.stockFull}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold">
+                        {product.priceFull ? `Bs ${product.priceFull}` : "—"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <AddToCartButtons product={product} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
