@@ -1,8 +1,8 @@
 export function BackgroundEffects() {
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
-      {/* Base background color - ensures dark theme consistency */}
-      <div className="absolute inset-0 bg-black" />
+      {/* Base background color - responds to light/dark theme */}
+      <div className="absolute inset-0 bg-background transition-colors duration-500" />
 
       {/* Decorative blurred orbs */}
       <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />

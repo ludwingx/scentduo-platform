@@ -205,7 +205,7 @@ export default function CatalogPage() {
           <h1 className="text-3xl md:text-4xl font-serif font-bold">
             Catálogo
           </h1>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {filteredProducts.length} producto
             {filteredProducts.length !== 1 ? "s" : ""}
           </p>
@@ -382,7 +382,7 @@ export default function CatalogPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg mb-4">
+            <p className="text-muted-foreground text-lg mb-4">
               No se encontraron productos
             </p>
             <Button onClick={resetFilters} variant="outline">

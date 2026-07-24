@@ -213,14 +213,14 @@ function CardFooter({ children, className = "" }: { children: React.ReactNode; c
   return <div className={`px-6 pb-6 pt-0 ${className}`}>{children}</div>;
 }
 
-function Badge({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "destructive" | "secondary" }) {
+function Badge({ children, variant = "default", className = "" }: { children: React.ReactNode; variant?: "default" | "destructive" | "secondary"; className?: string }) {
   const variants = {
     default: "bg-gold text-black",
     destructive: "bg-red-600 text-white",
     secondary: "bg-muted text-muted-foreground",
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${variants[variant]}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${variants[variant]} ${className}`}>
       {children}
     </span>
   );

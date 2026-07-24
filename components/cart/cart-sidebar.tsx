@@ -29,7 +29,7 @@ export function CartSidebar() {
     const message = `Hola! Quiero este pedido:\n\n${items
       .map(
         (item) =>
-          `- ${item.name} (${item.variant === "decant" ? "Decant" : "Full"}) x${
+          `- ${item.name} (${item.variant.includes("decant") ? "Decant" : "Full"}) x${
             item.quantity
           } = Bs ${item.price * item.quantity}`
       )
@@ -83,8 +83,10 @@ export function CartSidebar() {
                       {item.name}
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      {item.variant === "decant"
-                        ? "Decant 10ml"
+                      {item.variant.includes("decant")
+                        ? item.variant === "decant-5ml"
+                          ? "Decant 5ml"
+                          : "Decant 10ml"
                         : "Full Bottle"}
                     </p>
                     <p className="text-sm font-bold text-primary">

@@ -45,3 +45,33 @@ export async function submitPaymentProof(formData: FormData) {
     return { success: false, message: "Error al guardar el comprobante" };
   }
 }
+
+export async function updatePaymentProofStatus(id: string, status: "APPROVED" | "REJECTED" | "PENDING") {
+  try {
+    await prisma.paymentProof.update({
+      where: { id },
+      data: { status },
+    });
+    revalidatePath("/panel-admin/comprobantes");
+    revalidatePath("/panel-admin/dashboard");
+    return { success: true, message: `Estado actualizado a ${status === "APPROVED" ? "Aprobado" : status === "REJECTED" ? "Rechazado" : "Pendiente"}` };
+  } catch (error) {
+    console.error("Error updating payment proof status:", error);
+    return { success: false, message: "Error al actualizar el estado" };
+  }
+}
+
+export async function deletePaymentProof(id: string) {
+  try {
+    await prisma.paymentProof.delete({
+      where: { id },
+    });
+    revalidatePath("/panel-admin/comprobantes");
+    revalidatePath("/panel-admin/dashboard");
+    return { success: true, message: "Comprobante eliminado correctamente" };
+  } catch (error) {
+    console.error("Error deleting payment proof:", error);
+    return { success: false, message: "Error al eliminar el comprobante" };
+  }
+}
+

@@ -11,7 +11,22 @@ import { UploadButton } from "@/lib/uploadthing";
 import { createProduct, updateProduct } from "@/app/actions/products";
 import { toast } from "sonner";
 import Image from "next/image";
-import { X, Plus, Trash2 } from "lucide-react";
+import {
+  X,
+  Plus,
+  Trash2,
+  Clock,
+  Sliders,
+  ChevronDown,
+  ChevronUp,
+  Package,
+  Image as ImageIcon,
+  Tag,
+  Eye,
+  Save,
+  CheckCircle2,
+  Droplets,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,6 +51,8 @@ import {
   TOP_NOTES,
   HEART_NOTES,
   BASE_NOTES,
+  LONGEVITY_OPTIONS,
+  SILLAGE_OPTIONS,
 } from "@/app/lib/product-constants";
 import { createBrand } from "@/app/actions/brands";
 import {
@@ -47,6 +64,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { Badge } from "@/components/ui/badge";
 
 interface Brand {
   id: string;
@@ -58,7 +76,6 @@ interface Product {
   name: string;
   description: string;
   brandId?: string | null;
-  // Olfactory
   olfactoryFamily?: string | null;
   topNotes?: string | null;
   heartNotes?: string | null;
@@ -67,8 +84,6 @@ interface Product {
   gender?: string | null;
   season?: string | null;
   occasion?: string | null;
-
-  // Prices
   hasDecant: boolean;
   priceDecant5ml: any;
   priceDecant10ml: any;
@@ -77,15 +92,16 @@ interface Product {
   fullBottleSize?: string | null;
   stockFull: number;
   bottleVariants?: { sizeMl: number; price: any; stock: number }[];
-  // Decants stock
   stockDecant5ml: number;
   stockDecant10ml: number;
-  // Metadata
+  longevity?: string | null;
+  sillage?: string | null;
+  allowReservation?: boolean;
+  estimatedRestockDays?: number | null;
   images: string[];
   isActive: boolean;
   isFeatured: boolean;
 }
-
 export function ProductForm({
   product,
   brands = [],
@@ -124,7 +140,6 @@ export function ProductForm({
       : fallback;
   };
 
-  // MultiSelect States
   const [selectedTopNotes, setSelectedTopNotes] = useState<string[]>(
     product?.topNotes ? product.topNotes.split(",") : []
   );
@@ -140,15 +155,46 @@ export function ProductForm({
   const [selectedOccasions, setSelectedOccasions] = useState<string[]>(
     product?.occasion ? product.occasion.split(",") : []
   );
-  const [selectedGender, setSelectedGender] = useState<string[]>(
-    product?.gender ? product.gender.split(",") : []
-  );
 
-  // Toggles state
   const [hasDecant, setHasDecant] = useState(product?.hasDecant ?? false);
   const [hasFullBottle, setHasFullBottle] = useState(
     product?.hasFullBottle ?? true
   );
+
+  const [priceFullInput, setPriceFullInput] = useState<string>(
+    product?.priceFull ? String(product.priceFull) : ""
+  );
+  const [fullBottleSizeInput, setFullBottleSizeInput] = useState<string>(
+    product?.fullBottleSize || "100ml"
+  );
+  const [priceDecant5ml, setPriceDecant5ml] = useState<string>(
+    product?.priceDecant5ml ? String(product.priceDecant5ml) : ""
+  );
+  const [priceDecant10ml, setPriceDecant10ml] = useState<string>(
+    product?.priceDecant10ml ? String(product.priceDecant10ml) : ""
+  );
+
+  const [showOlfactoryDetails, setShowOlfactoryDetails] = useState(
+    Boolean(
+      product?.topNotes ||
+        product?.heartNotes ||
+        product?.baseNotes ||
+        product?.olfactoryFamily ||
+        product?.season ||
+        product?.occasion
+    )
+  );
+  const [showPerformanceDetails, setShowPerformanceDetails] = useState(
+    Boolean(product?.longevity || product?.sillage)
+  );
+  const [allowReservation, setAllowReservation] = useState<boolean>(
+    product?.allowReservation ?? true
+  );
+  const [estimatedRestockDays, setEstimatedRestockDays] = useState<string>(
+    product?.estimatedRestockDays ? String(product.estimatedRestockDays) : "7"
+  );
+  const [longevity, setLongevity] = useState<string>(product?.longevity || "");
+  const [sillage, setSillage] = useState<string>(product?.sillage || "");
 
   const [bottleVariants, setBottleVariants] = useState<
     { sizeMl: string; price: string; stock: string }[]
@@ -180,9 +226,6 @@ export function ProductForm({
     return [];
   });
 
-  // Default stocks
-  // If product exists, use its values, else 0
-  const defaultStockFull = product?.stockFull ?? 0;
   const defaultStockDecant5ml = product?.stockDecant5ml ?? 0;
   const defaultStockDecant10ml = product?.stockDecant10ml ?? 0;
 
@@ -195,7 +238,6 @@ export function ProductForm({
     if (selectedBrand) {
       formData.set("brandId", selectedBrand);
     }
-
     formData.set("bottleVariants", JSON.stringify(bottleVariants));
 
     try {
@@ -238,9 +280,7 @@ export function ProductForm({
       setSelectedBrand(res.brand.id);
       setIsBrandDialogOpen(false);
       setNewBrandName("");
-      toast.success("Marca creada");
-    } else {
-      toast.error(res.message || "Error al crear marca");
+      toast.success("Marca creada correctamente");
     }
   };
 
@@ -254,7 +294,6 @@ export function ProductForm({
         const n = Number(v.sizeMl);
         return Number.isFinite(n) ? Math.max(acc, n) : acc;
       }, 0);
-
       const nextSize = maxSize > 0 ? maxSize + 25 : 100;
       return [...prev, { sizeMl: String(nextSize), price: "", stock: "0" }];
     });
@@ -275,666 +314,769 @@ export function ProductForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-    >
-      {/* Columna Principal (2/3) */}
-      <div className="lg:col-span-2 space-y-8">
-        {/* Card 1: Información Básica */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <div className="flex items-center justify-between border-b pb-2">
-              <h3 className="text-lg font-semibold">Información Básica</h3>
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+        {/* Columna Principal (2/3 en Pantallas Grandes, 1/1 en Móviles y Tablets) */}
+        <div className="xl:col-span-2 space-y-6">
+          {/* Card 1: Información Básica */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4 sm:p-6 space-y-5">
+              <div className="flex items-center gap-2 border-b pb-3">
+                <Package className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Información General</h3>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre del Producto *</Label>
+                <Label htmlFor="name" className="font-medium">
+                  Nombre del Producto *
+                </Label>
                 <Input
                   id="name"
                   name="name"
-                  placeholder="Ej: Sauvage Elixir"
+                  placeholder="Ej: Baccarat Rouge 540"
                   defaultValue={product?.name}
+                  className="text-base"
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Marca</Label>
-                <div className="flex gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="font-medium">Marca o Casa de Perfumería</Label>
+                  <div className="flex gap-2">
+                    <Select
+                      value={selectedBrand}
+                      onValueChange={setSelectedBrand}
+                      name="brandId"
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccionar marca..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {localBrands.map((b) => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Dialog
+                      open={isBrandDialogOpen}
+                      onOpenChange={setIsBrandDialogOpen}
+                    >
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          type="button"
+                          title="Crear nueva marca"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Crear Nueva Marca</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label>Nombre de la Marca</Label>
+                            <Input
+                              value={newBrandName}
+                              onChange={(e) => setNewBrandName(e.target.value)}
+                              placeholder="Ej: Maison Francis Kurkdjian"
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button type="button" onClick={handleCreateBrand}>
+                            Guardar Marca
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="gender" className="font-medium">
+                    Género
+                  </Label>
                   <Select
-                    value={selectedBrand}
-                    onValueChange={setSelectedBrand}
-                    name="brandId"
+                    name="gender"
+                    defaultValue={product?.gender || "Unisex"}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleccionar marca..." />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {localBrands.map((b) => (
-                        <SelectItem key={b.id} value={b.id}>
-                          {b.name}
+                      {GENDERS.map((gender) => (
+                        <SelectItem key={gender} value={gender}>
+                          {gender}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-
-                  <Dialog
-                    open={isBrandDialogOpen}
-                    onOpenChange={setIsBrandDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        type="button"
-                        title="Crear nueva marca"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Crear Nueva Marca</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label>Nombre de la Marca</Label>
-                          <Input
-                            value={newBrandName}
-                            onChange={(e) => setNewBrandName(e.target.value)}
-                            placeholder="Ej: Dior, Chanel"
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button type="button" onClick={handleCreateBrand}>
-                          Guardar Marca
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="gender">Género</Label>
-                <Select
-                  name="gender"
-                  defaultValue={product?.gender || "Masculino"}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GENDERS.map((gender) => (
-                      <SelectItem key={gender} value={gender}>
-                        {gender}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Descripción *</Label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Describe las notas olfativas y características..."
-                rows={4}
-                defaultValue={product?.description}
-                required
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card: Detalles Olfativos (Nuevo) */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <h3 className="text-lg font-semibold border-b pb-2">
-              Perfil Olfativo
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="olfactoryFamily">Familia Olfativa</Label>
-                <Select
-                  name="olfactoryFamily"
-                  defaultValue={product?.olfactoryFamily || ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OLFACTORY_FAMILIES.map((family) => (
-                      <SelectItem key={family} value={family}>
-                        {family}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="concentration">Concentración</Label>
-                <Select
-                  name="concentration"
-                  defaultValue={
-                    product?.concentration ||
-                    CONCENTRATIONS.find((c) => c.includes("EDP")) ||
-                    CONCENTRATIONS[0]
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CONCENTRATIONS.map((conc) => (
-                      <SelectItem key={conc} value={conc}>
-                        {conc}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="topNotes">Notas de Salida</Label>
-                <MultiSelect
-                  options={TOP_NOTES}
-                  selected={selectedTopNotes}
-                  onChange={setSelectedTopNotes}
-                  placeholder="Selecciona notas..."
-                />
-                <input
-                  type="hidden"
-                  name="topNotes"
-                  value={selectedTopNotes.join(",")}
+                <Label htmlFor="description" className="font-medium">
+                  Descripción Comercial *
+                </Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  placeholder="Describe la personalidad, aromas y características del perfume..."
+                  rows={4}
+                  defaultValue={product?.description}
+                  required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="heartNotes">Notas de Corazón</Label>
-                <MultiSelect
-                  options={HEART_NOTES}
-                  selected={selectedHeartNotes}
-                  onChange={setSelectedHeartNotes}
-                  placeholder="Selecciona notas..."
-                />
-                <input
-                  type="hidden"
-                  name="heartNotes"
-                  value={selectedHeartNotes.join(",")}
-                />
-              </div>
-              <Label htmlFor="baseNotes">Notas de Fondo</Label>
-              <MultiSelect
-                options={BASE_NOTES}
-                selected={selectedBaseNotes}
-                onChange={setSelectedBaseNotes}
-                placeholder="Selecciona notas..."
-              />
-              <input
-                type="hidden"
-                name="baseNotes"
-                value={selectedBaseNotes.join(",")}
-              />
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor="season">Estación</Label>
-                <MultiSelect
-                  options={SEASONS}
-                  selected={selectedSeasons}
-                  onChange={setSelectedSeasons}
-                  placeholder="Selecciona..."
-                />
-                <input
-                  type="hidden"
-                  name="season"
-                  value={selectedSeasons.join(",")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="occasion">Ocasión</Label>
-                <MultiSelect
-                  options={OCCASIONS}
-                  selected={selectedOccasions}
-                  onChange={setSelectedOccasions}
-                  placeholder="Selecciona..."
-                />
-                <input
-                  type="hidden"
-                  name="occasion"
-                  value={selectedOccasions.join(",")}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Card 2: Multimedia */}
-          <Card className="h-full">
-            <CardContent className="pt-6 space-y-4">
-              <h3 className="text-lg font-semibold border-b pb-2">
-                Multimedia
-              </h3>
-              <div className="space-y-2">
-                <Label>Galería de Imágenes</Label>
-                <div className="border-2 border-dashed rounded-lg p-4 bg-muted/50">
-                  {images.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {images.map((img, index) => (
-                        <div
-                          key={index}
-                          className="relative aspect-square group"
+          <Card className="shadow-sm">
+            <CardContent className="p-4 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold">Galería de Fotos</h3>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {images.length} foto{images.length === 1 ? "" : "s"}
+                </Badge>
+              </div>
+
+              <div className="space-y-3">
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                    {images.map((img, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-square group rounded-lg overflow-hidden border bg-muted"
+                      >
+                        <Image
+                          src={img}
+                          alt={`Imagen ${index + 1}`}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                        {index === 0 && (
+                          <Badge className="absolute top-2 left-2 bg-primary text-[10px] shadow">
+                            Portada
+                          </Badge>
+                        )}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
                         >
-                          <Image
-                            src={img}
-                            alt={`Imagen ${index + 1}`}
-                            fill
-                            className="object-cover rounded-md border"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute -top-1 -right-1 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => removeImage(index)}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="border-2 border-dashed rounded-xl p-6 bg-muted/30 text-center hover:bg-muted/50 transition-colors">
                   <UploadButton
                     endpoint="productImage"
                     onClientUploadComplete={(res) => {
                       if (res) {
                         const newImages = res.map((file) => file.url);
                         setImages([...images, ...newImages]);
-                        toast.success("Imágenes subidas");
+                        toast.success("Imágenes cargadas correctamente");
                       }
                     }}
                     onUploadError={(error: Error) => {
-                      toast.error(`Error: ${error.message}`);
+                      toast.error(`Error de carga: ${error.message}`);
                     }}
                   />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Sube imágenes de alta resolución en formato JPG, PNG o WebP
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Card 3: Variantes y Precios */}
-          <Card className="h-full">
-            <CardContent className="pt-6 space-y-6">
-              <h3 className="text-lg font-semibold border-b pb-2">
-                Precios y Variantes
-              </h3>
+          {/* Card 3: Variantes y Precios de Venta */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4 sm:p-6 space-y-6">
+              <div className="flex items-center gap-2 border-b pb-3">
+                <Tag className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">
+                  Precios y Modalidades de Venta
+                </h3>
+              </div>
 
-              <div className="space-y-6">
-                {/* Botella Completa */}
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="hasFullBottle"
-                      name="hasFullBottle"
-                      className="h-4 w-4 rounded border-gray-300 accent-primary"
-                      checked={hasFullBottle}
-                      onChange={(e) => setHasFullBottle(e.target.checked)}
-                    />
-                    <Label
-                      htmlFor="hasFullBottle"
-                      className="font-medium cursor-pointer"
-                    >
-                      Venta por Botella
-                    </Label>
-                  </div>
-                  {hasFullBottle && (
-                    <div className="pl-6 space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <Label
-                            htmlFor="priceFull"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Precio (Bs)
-                          </Label>
-                          <Input
-                            id="priceFull"
-                            name="priceFull"
-                            type="number"
-                            step="0.01"
-                            placeholder="0.00"
-                            className="mt-1"
-                            defaultValue={product?.priceFull?.toString()}
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            htmlFor="fullBottleSize"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Tamaño (ml)
-                          </Label>
-                          <Input
-                            id="fullBottleSize"
-                            name="fullBottleSize"
-                            type="text"
-                            placeholder="Ej: 100ml"
-                            className="mt-1"
-                            defaultValue={product?.fullBottleSize || "100ml"}
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            htmlFor="stockFull"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Stock (Unidades)
-                          </Label>
-                          <Input
-                            id="stockFull"
-                            name="stockFull"
-                            type="number"
-                            placeholder="0"
-                            className="mt-1"
-                            defaultValue={defaultStockFull}
-                          />
-                        </div>
+              {/* Botella Completa */}
+              <div className="space-y-4 rounded-xl border p-4 bg-card">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="hasFullBottle"
+                    name="hasFullBottle"
+                    className="h-5 w-5 rounded border-gray-300 accent-primary cursor-pointer"
+                    checked={hasFullBottle}
+                    onChange={(e) => setHasFullBottle(e.target.checked)}
+                  />
+                  <Label
+                    htmlFor="hasFullBottle"
+                    className="text-base font-semibold cursor-pointer"
+                  >
+                    Venta por Botella Completa (Original / Tester)
+                  </Label>
+                </div>
+
+                {hasFullBottle && (
+                  <div className="pl-0 sm:pl-8 space-y-4 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="priceFull" className="text-xs font-medium">
+                          Precio Principal (Bs)
+                        </Label>
+                        <Input
+                          id="priceFull"
+                          name="priceFull"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className="mt-1"
+                          value={priceFullInput}
+                          onChange={(e) => setPriceFullInput(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="fullBottleSize" className="text-xs font-medium">
+                          Tamaño de Botella (ml)
+                        </Label>
+                        <Input
+                          id="fullBottleSize"
+                          name="fullBottleSize"
+                          type="text"
+                          placeholder="Ej: 100ml"
+                          className="mt-1"
+                          value={fullBottleSizeInput}
+                          onChange={(e) => setFullBottleSizeInput(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Tabla de Presentaciones Adicionales */}
+                    <div className="pt-3 border-t">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          Otras Presentaciones de Botellas Completa
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addBottleVariantRow}
+                          className="text-xs gap-1"
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Agregar Tamaño
+                        </Button>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="font-medium">
-                            Presentaciones (ml / precio / stock)
-                          </Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addBottleVariantRow}
-                          >
-                            <Plus className="mr-2 h-4 w-4" /> Agregar
-                          </Button>
-                        </div>
-
-                        <input
-                          type="hidden"
-                          name="bottleVariants"
-                          value={JSON.stringify(bottleVariants)}
-                        />
-
-                        <div className="rounded-md border">
-                          <Table>
-                            <TableHeader>
+                      {bottleVariants.length > 0 && (
+                        <div className="border rounded-lg overflow-x-auto">
+                          <Table className="min-w-[400px]">
+                            <TableHeader className="bg-muted/50">
                               <TableRow>
-                                <TableHead>Tamaño (ml)</TableHead>
-                                <TableHead>Precio (Bs)</TableHead>
-                                <TableHead>Stock</TableHead>
-                                <TableHead className="text-right">
-                                  Acción
-                                </TableHead>
+                                <TableHead className="text-xs">Tamaño (ml)</TableHead>
+                                <TableHead className="text-xs">Precio (Bs)</TableHead>
+                                <TableHead className="text-xs">Stock</TableHead>
+                                <TableHead className="text-xs text-right">Acción</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {bottleVariants.length === 0 ? (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={4}
-                                    className="text-center text-muted-foreground"
-                                  >
-                                    Sin presentaciones
+                              {bottleVariants.map((v, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>
+                                    <Input
+                                      type="number"
+                                      value={v.sizeMl}
+                                      onChange={(e) =>
+                                        updateBottleVariant(index, "sizeMl", e.target.value)
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      value={v.price}
+                                      onChange={(e) =>
+                                        updateBottleVariant(index, "price", e.target.value)
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Input
+                                      type="number"
+                                      value={v.stock}
+                                      onChange={(e) =>
+                                        updateBottleVariant(index, "stock", e.target.value)
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="text-destructive hover:text-destructive"
+                                      onClick={() => removeBottleVariantRow(index)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
                                   </TableCell>
                                 </TableRow>
-                              ) : (
-                                bottleVariants.map((v, index) => (
-                                  <TableRow key={index}>
-                                    <TableCell>
-                                      <Input
-                                        type="number"
-                                        value={v.sizeMl}
-                                        onChange={(e) =>
-                                          updateBottleVariant(
-                                            index,
-                                            "sizeMl",
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Input
-                                        type="number"
-                                        step="0.01"
-                                        value={v.price}
-                                        onChange={(e) =>
-                                          updateBottleVariant(
-                                            index,
-                                            "price",
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell>
-                                      <Input
-                                        type="number"
-                                        value={v.stock}
-                                        onChange={(e) =>
-                                          updateBottleVariant(
-                                            index,
-                                            "stock",
-                                            e.target.value
-                                          )
-                                        }
-                                      />
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="text-destructive hover:text-destructive"
-                                        onClick={() => removeBottleVariantRow(index)}
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                ))
-                              )}
+                              ))}
                             </TableBody>
                           </Table>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                <div className="border-t border-dashed" />
-
-                {/* Decants */}
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="hasDecant"
-                      name="hasDecant"
-                      className="h-4 w-4 rounded border-gray-300 accent-primary"
-                      checked={hasDecant}
-                      onChange={(e) => setHasDecant(e.target.checked)}
-                    />
-                    <Label
-                      htmlFor="hasDecant"
-                      className="font-medium cursor-pointer"
-                    >
-                      Venta por Decants
-                    </Label>
                   </div>
-                  {hasDecant && (
-                    <div className="pl-6 space-y-4">
-                      {/* 5ml Section */}
-                      <div className="grid grid-cols-2 gap-3 items-end border-b pb-3">
-                        <div>
-                          <Label
-                            htmlFor="priceDecant5ml"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Precio 5ml (Bs)
-                          </Label>
-                          <Input
-                            id="priceDecant5ml"
-                            name="priceDecant5ml"
-                            type="number"
-                            step="0.01"
-                            placeholder="0.00"
-                            className="mt-1"
-                            defaultValue={product?.priceDecant5ml?.toString()}
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            htmlFor="stockDecant5ml"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Stock 5ml
-                          </Label>
-                          <Input
-                            id="stockDecant5ml"
-                            name="stockDecant5ml"
-                            type="number"
-                            placeholder="0"
-                            className="mt-1"
-                            defaultValue={defaultStockDecant5ml}
-                          />
-                        </div>
-                      </div>
+                )}
+              </div>
 
-                      {/* 10ml Section */}
-                      <div className="grid grid-cols-2 gap-3 items-end">
-                        <div>
-                          <Label
-                            htmlFor="priceDecant10ml"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Precio 10ml (Bs)
-                          </Label>
-                          <Input
-                            id="priceDecant10ml"
-                            name="priceDecant10ml"
-                            type="number"
-                            step="0.01"
-                            placeholder="0.00"
-                            className="mt-1"
-                            defaultValue={product?.priceDecant10ml?.toString()}
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            htmlFor="stockDecant10ml"
-                            className="text-xs text-muted-foreground"
-                          >
-                            Stock 10ml
-                          </Label>
-                          <Input
-                            id="stockDecant10ml"
-                            name="stockDecant10ml"
-                            type="number"
-                            placeholder="0"
-                            className="mt-1"
-                            defaultValue={defaultStockDecant10ml}
-                          />
-                        </div>
+              {/* Decants */}
+              <div className="space-y-4 rounded-xl border p-4 bg-card">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id="hasDecant"
+                    name="hasDecant"
+                    className="h-5 w-5 rounded border-gray-300 accent-primary cursor-pointer"
+                    checked={hasDecant}
+                    onChange={(e) => setHasDecant(e.target.checked)}
+                  />
+                  <Label
+                    htmlFor="hasDecant"
+                    className="text-base font-semibold cursor-pointer flex items-center gap-2"
+                  >
+                    <Droplets className="h-4 w-4 text-primary" /> Venta por Decants / Fraccionados
+                  </Label>
+                </div>
+
+                {hasDecant && (
+                  <div className="pl-0 sm:pl-8 space-y-4 pt-2">
+                    {/* 5ml Section */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b pb-4">
+                      <div>
+                        <Label htmlFor="priceDecant5ml" className="text-xs font-medium">
+                          Precio Decant 5ml (Bs)
+                        </Label>
+                        <Input
+                          id="priceDecant5ml"
+                          name="priceDecant5ml"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className="mt-1"
+                          value={priceDecant5ml}
+                          onChange={(e) => setPriceDecant5ml(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="stockDecant5ml" className="text-xs font-medium">
+                          Stock Disponible (5ml)
+                        </Label>
+                        <Input
+                          id="stockDecant5ml"
+                          name="stockDecant5ml"
+                          type="number"
+                          placeholder="0"
+                          className="mt-1"
+                          defaultValue={defaultStockDecant5ml}
+                        />
                       </div>
                     </div>
-                  )}
+
+                    {/* 10ml Section */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="priceDecant10ml" className="text-xs font-medium">
+                          Precio Decant 10ml (Bs)
+                        </Label>
+                        <Input
+                          id="priceDecant10ml"
+                          name="priceDecant10ml"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className="mt-1"
+                          value={priceDecant10ml}
+                          onChange={(e) => setPriceDecant10ml(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="stockDecant10ml" className="text-xs font-medium">
+                          Stock Disponible (10ml)
+                        </Label>
+                        <Input
+                          id="stockDecant10ml"
+                          name="stockDecant10ml"
+                          type="number"
+                          placeholder="0"
+                          className="mt-1"
+                          defaultValue={defaultStockDecant10ml}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card 4: Perfil Olfativo (Opcional) */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <Sliders className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold">Perfil Olfativo & Pirámide</h3>
                 </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground flex items-center gap-1"
+                  onClick={() => setShowOlfactoryDetails(!showOlfactoryDetails)}
+                >
+                  {showOlfactoryDetails ? (
+                    <>
+                      <ChevronUp className="h-4 w-4" /> Ocultar campos
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-4 w-4" /> Especificar notas
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {showOlfactoryDetails && (
+                <div className="space-y-4 pt-2 animate-in fade-in-50 duration-300">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="olfactoryFamily">Familia Olfativa</Label>
+                      <Select
+                        name="olfactoryFamily"
+                        defaultValue={product?.olfactoryFamily || ""}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OLFACTORY_FAMILIES.map((family) => (
+                            <SelectItem key={family} value={family}>
+                              {family}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="concentration">Concentración</Label>
+                      <Select
+                        name="concentration"
+                        defaultValue={
+                          product?.concentration ||
+                          CONCENTRATIONS.find((c) => c.includes("EDP")) ||
+                          CONCENTRATIONS[0]
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CONCENTRATIONS.map((conc) => (
+                            <SelectItem key={conc} value={conc}>
+                              {conc}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="topNotes">Notas de Salida</Label>
+                      <MultiSelect
+                        options={TOP_NOTES}
+                        selected={selectedTopNotes}
+                        onChange={setSelectedTopNotes}
+                        placeholder="Selecciona notas..."
+                      />
+                      <input
+                        type="hidden"
+                        name="topNotes"
+                        value={selectedTopNotes.join(",")}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="heartNotes">Notas de Corazón</Label>
+                      <MultiSelect
+                        options={HEART_NOTES}
+                        selected={selectedHeartNotes}
+                        onChange={setSelectedHeartNotes}
+                        placeholder="Selecciona notas..."
+                      />
+                      <input
+                        type="hidden"
+                        name="heartNotes"
+                        value={selectedHeartNotes.join(",")}
+                      />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2 md:col-span-1">
+                      <Label htmlFor="baseNotes">Notas de Fondo</Label>
+                      <MultiSelect
+                        options={BASE_NOTES}
+                        selected={selectedBaseNotes}
+                        onChange={setSelectedBaseNotes}
+                        placeholder="Selecciona notas..."
+                      />
+                      <input
+                        type="hidden"
+                        name="baseNotes"
+                        value={selectedBaseNotes.join(",")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="season">Estación Recomendada</Label>
+                      <MultiSelect
+                        options={SEASONS}
+                        selected={selectedSeasons}
+                        onChange={setSelectedSeasons}
+                        placeholder="Selecciona..."
+                      />
+                      <input
+                        type="hidden"
+                        name="season"
+                        value={selectedSeasons.join(",")}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="occasion">Ocasión Recomendada</Label>
+                      <MultiSelect
+                        options={OCCASIONS}
+                        selected={selectedOccasions}
+                        onChange={setSelectedOccasions}
+                        placeholder="Selecciona..."
+                      />
+                      <input
+                        type="hidden"
+                        name="occasion"
+                        value={selectedOccasions.join(",")}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Card 5: Rendimiento (Opcional) */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold">Ficha de Rendimiento</h3>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground flex items-center gap-1"
+                  onClick={() => setShowPerformanceDetails(!showPerformanceDetails)}
+                >
+                  {showPerformanceDetails ? (
+                    <>
+                      <ChevronUp className="h-4 w-4" /> Ocultar rendimiento
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-4 w-4" /> Añadir longevidad y estela
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {showPerformanceDetails && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 animate-in fade-in-50 duration-300">
+                  <div className="space-y-2">
+                    <Label htmlFor="longevity">Longevidad / Duración</Label>
+                    <Select name="longevity" value={longevity} onValueChange={setLongevity}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar duración..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LONGEVITY_OPTIONS.map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sillage">Estela / Proyección (Sillage)</Label>
+                    <Select name="sillage" value={sillage} onValueChange={setSillage}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar estela..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SILLAGE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Columna Lateral (1/3 en Pantallas Extra Grandes, 1/1 en Pantallas Menores) */}
+        <div className="space-y-6">
+          <Card className="shadow-sm xl:sticky xl:top-6">
+            <CardContent className="p-4 sm:p-6 space-y-5">
+              <div className="flex items-center gap-2 border-b pb-3">
+                <Eye className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Estado & Publicación</h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 accent-primary cursor-pointer"
+                    defaultChecked={product?.isActive ?? true}
+                  />
+                  <div className="space-y-1">
+                    <Label
+                      htmlFor="isActive"
+                      className="font-semibold cursor-pointer"
+                    >
+                      Producto Activo
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Visible para los clientes en la tienda pública.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="isFeatured"
+                    name="isFeatured"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 accent-primary cursor-pointer"
+                    defaultChecked={product?.isFeatured ?? false}
+                  />
+                  <div className="space-y-1">
+                    <Label
+                      htmlFor="isFeatured"
+                      className="font-semibold cursor-pointer"
+                    >
+                      Destacado en Portada
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Aparece en la sección principal y recomendaciones.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="allowReservation"
+                    name="allowReservation"
+                    className="mt-1 h-5 w-5 rounded border-gray-300 accent-primary cursor-pointer"
+                    checked={allowReservation}
+                    onChange={(e) => setAllowReservation(e.target.checked)}
+                  />
+                  <div className="space-y-1 w-full">
+                    <Label
+                      htmlFor="allowReservation"
+                      className="font-semibold cursor-pointer"
+                    >
+                      Permitir Reservas sin Stock
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      El cliente puede encargar o reservar cuando esté agotado.
+                    </p>
+                    {allowReservation && (
+                      <div className="pt-2">
+                        <Label
+                          htmlFor="estimatedRestockDays"
+                          className="text-xs font-medium text-muted-foreground"
+                        >
+                          Días estimados de reposición
+                        </Label>
+                        <Input
+                          id="estimatedRestockDays"
+                          name="estimatedRestockDays"
+                          type="number"
+                          min="1"
+                          value={estimatedRestockDays}
+                          onChange={(e) => setEstimatedRestockDays(e.target.value)}
+                          className="mt-1 h-8 text-xs"
+                          placeholder="Ej: 7"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t space-y-3">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full gap-2 text-base py-6 shadow-md"
+                  size="lg"
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                  {isSubmitting
+                    ? "Guardando..."
+                    : product
+                      ? "Actualizar Producto"
+                      : "Guardar Perfume"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.push("/panel-admin/productos")}
+                >
+                  Volver a la Lista
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      {/* Columna Lateral (1/3) */}
-      <div className="space-y-8">
-        {/* Card 4: Estado y Publicación */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <h3 className="text-lg font-semibold border-b pb-2">
-              Estado y Visibilidad
-            </h3>
-
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-3 rounded-md border hover:bg-muted/50 transition-colors">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  name="isActive"
-                  className="mt-1 h-4 w-4 rounded border-gray-300 accent-primary"
-                  defaultChecked={product?.isActive ?? true}
-                />
-                <div className="space-y-1">
-                  <Label
-                    htmlFor="isActive"
-                    className="font-medium cursor-pointer"
-                  >
-                    Activo
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Visible para los clientes en la tienda.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 p-3 rounded-md border hover:bg-muted/50 transition-colors">
-                <input
-                  type="checkbox"
-                  id="isFeatured"
-                  name="isFeatured"
-                  className="mt-1 h-4 w-4 rounded border-gray-300 accent-primary"
-                  defaultChecked={product?.isFeatured ?? false}
-                />
-                <div className="space-y-1">
-                  <Label
-                    htmlFor="isFeatured"
-                    className="font-medium cursor-pointer"
-                  >
-                    Destacado
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Aparece en la sección principal (Hero).
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full"
-                size="lg"
-              >
-                {isSubmitting
-                  ? "Guardando..."
-                  : product
-                    ? "Actualizar Producto"
-                    : "Crear Producto"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </form>
   );

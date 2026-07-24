@@ -5,7 +5,7 @@ import { authenticate } from './actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Sparkles } from "lucide-react"
 
 export default function LoginForm() {
     const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined)
@@ -13,7 +13,7 @@ export default function LoginForm() {
     return (
         <form action={formAction} className="grid gap-4">
             <div className="grid gap-2">
-                <Label htmlFor="username" className="text-gray-300">
+                <Label htmlFor="username">
                     Usuario
                 </Label>
                 <Input
@@ -21,11 +21,11 @@ export default function LoginForm() {
                     name="username"
                     type="text"
                     required
-                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus-visible:ring-gold/50"
+                    className="focus-visible:ring-gold/50"
                 />
             </div>
             <div className="grid gap-2">
-                <Label htmlFor="password" className="text-gray-300">
+                <Label htmlFor="password">
                     Contraseña
                 </Label>
                 <Input
@@ -33,7 +33,7 @@ export default function LoginForm() {
                     name="password"
                     type="password"
                     required
-                    className="bg-white/5 border-white/10 text-white focus-visible:ring-gold/50"
+                    className="focus-visible:ring-gold/50"
                 />
             </div>
 
@@ -59,3 +59,4 @@ export default function LoginForm() {
         </form>
     )
 }
+

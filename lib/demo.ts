@@ -1,0 +1,248 @@
+import { cookies } from "next/headers";
+
+/**
+ * Server-side helper to check if the current request is in Demo Mode.
+ * Reads the `essenceos_demo` cookie set by the middleware when entering /demo/... routes.
+ */
+export async function isDemoMode(): Promise<boolean> {
+  const cookieStore = await cookies();
+  return cookieStore.get("essenceos_demo")?.value === "true";
+}
+
+// ─── Mock Data: Products ─────────────────────────────────────────────
+export const MOCK_PRODUCTS = [
+  {
+    id: "demo-prod-1",
+    name: "Parfums de Marly Layton",
+    description: "Fragancia amaderada oriental con notas de manzana, lavanda y vainilla. Proyección potente y duración excepcional.",
+    brand: { name: "Parfums de Marly" },
+    brandId: "brand-1",
+    olfactoryFamily: "Amaderada Oriental",
+    topNotes: "Manzana, Bergamota, Lavanda",
+    heartNotes: "Jazmín, Iris, Violeta",
+    baseNotes: "Vainilla, Sándalo, Ámbar Gris",
+    concentration: "EDP",
+    gender: "UNISEX",
+    season: "Otoño/Invierno",
+    occasion: "Versátil",
+    hasDecant: true,
+    priceDecant5ml: 75,
+    priceDecant10ml: 140,
+    stockDecant5ml: 12,
+    stockDecant10ml: 5,
+    hasFullBottle: true,
+    priceFull: 890,
+    fullBottleSize: "125ml",
+    stockFull: 8,
+    allowReservation: true,
+    estimatedRestockDays: 0,
+    images: [],
+    isActive: true,
+    isFeatured: true,
+    notes: "Cítrico, Amaderado, Especiado",
+    longevity: "8-10 horas",
+    sillage: "Fuerte",
+    createdAt: new Date("2026-07-20"),
+    updatedAt: new Date("2026-07-24"),
+  },
+  {
+    id: "demo-prod-2",
+    name: "Creed Aventus",
+    description: "Icónica fragancia frutal amaderada. Notas de piña, abedul y almizcle. Considerada una de las mejores de la historia.",
+    brand: { name: "Creed" },
+    brandId: "brand-2",
+    olfactoryFamily: "Frutal Amaderada",
+    topNotes: "Piña, Grosella Negra, Manzana",
+    heartNotes: "Abedul, Pachuli, Rosa",
+    baseNotes: "Almizcle, Musgo de Roble, Vainilla",
+    concentration: "EDP",
+    gender: "MALE",
+    season: "Todo el año",
+    occasion: "Oficina / Formal",
+    hasDecant: true,
+    priceDecant5ml: 95,
+    priceDecant10ml: 180,
+    stockDecant5ml: 4,
+    stockDecant10ml: 2,
+    hasFullBottle: true,
+    priceFull: 1200,
+    fullBottleSize: "100ml",
+    stockFull: 3,
+    allowReservation: true,
+    estimatedRestockDays: 14,
+    images: [],
+    isActive: true,
+    isFeatured: true,
+    notes: "Frutal, Amaderado, Ahumado",
+    longevity: "6-8 horas",
+    sillage: "Moderado-Fuerte",
+    createdAt: new Date("2026-07-18"),
+    updatedAt: new Date("2026-07-24"),
+  },
+  {
+    id: "demo-prod-3",
+    name: "Lattafa Khamrah",
+    description: "Inspiración oriental gourmand con notas de dátil, canela y vainilla. Excelente relación calidad-precio.",
+    brand: { name: "Lattafa" },
+    brandId: "brand-3",
+    olfactoryFamily: "Oriental Gourmand",
+    topNotes: "Canela, Nuez Moscada, Bergamota",
+    heartNotes: "Dátil, Praline, Tuberosa",
+    baseNotes: "Vainilla, Tabaco, Benjuí",
+    concentration: "EDP",
+    gender: "UNISEX",
+    season: "Otoño/Invierno",
+    occasion: "Noche",
+    hasDecant: true,
+    priceDecant5ml: 35,
+    priceDecant10ml: 65,
+    stockDecant5ml: 45,
+    stockDecant10ml: 25,
+    hasFullBottle: true,
+    priceFull: 310,
+    fullBottleSize: "100ml",
+    stockFull: 15,
+    allowReservation: true,
+    estimatedRestockDays: 0,
+    images: [],
+    isActive: true,
+    isFeatured: false,
+    notes: "Dulce, Especiado, Gourmand",
+    longevity: "8-12 horas",
+    sillage: "Fuerte",
+    createdAt: new Date("2026-07-15"),
+    updatedAt: new Date("2026-07-24"),
+  },
+  {
+    id: "demo-prod-4",
+    name: "Afnan 9PM",
+    description: "Fragancia dulce especiada ideal para la noche. Notas de manzana, canela y vainilla con excelente proyección.",
+    brand: { name: "Afnan" },
+    brandId: "brand-4",
+    olfactoryFamily: "Dulce Especiada",
+    topNotes: "Manzana, Canela, Lavanda",
+    heartNotes: "Iris, Naranja, Geranio",
+    baseNotes: "Vainilla, Almizcle Blanco, Ámbar",
+    concentration: "EDP",
+    gender: "MALE",
+    season: "Otoño/Invierno",
+    occasion: "Noche / Citas",
+    hasDecant: true,
+    priceDecant5ml: 30,
+    priceDecant10ml: 55,
+    stockDecant5ml: 60,
+    stockDecant10ml: 30,
+    hasFullBottle: true,
+    priceFull: 280,
+    fullBottleSize: "100ml",
+    stockFull: 22,
+    allowReservation: true,
+    estimatedRestockDays: 0,
+    images: [],
+    isActive: true,
+    isFeatured: false,
+    notes: "Dulce, Especiado, Amaderado",
+    longevity: "6-8 horas",
+    sillage: "Moderado",
+    createdAt: new Date("2026-07-10"),
+    updatedAt: new Date("2026-07-24"),
+  },
+];
+
+// ─── Mock Data: Dashboard ────────────────────────────────────────────
+export const MOCK_DASHBOARD = {
+  productCount: 4,
+  activeProducts: 4,
+  decantProductsCount: 4,
+  proofCount: 3,
+  pendingProofCount: 1,
+  supplyOrdersCount: 2,
+  recentProducts: MOCK_PRODUCTS.slice(0, 4).map((p) => ({
+    id: p.id,
+    name: p.name,
+    brand: p.brand,
+    priceFull: p.priceFull,
+    stockFull: p.stockFull,
+    images: p.images,
+    isActive: p.isActive,
+    gender: p.gender,
+  })),
+  recentProofs: [
+    { id: "proof-1", customerName: "Juan Pérez", customerPhone: "+591 71234567", status: "PENDING" },
+    { id: "proof-2", customerName: "María López", customerPhone: "+591 79876543", status: "APPROVED" },
+    { id: "proof-3", customerName: "Carlos Mendoza", customerPhone: "+591 75556677", status: "APPROVED" },
+  ],
+};
+
+// ─── Mock Data: Inventory ────────────────────────────────────────────
+export const MOCK_INVENTORY = MOCK_PRODUCTS.map((p) => ({
+  id: p.id,
+  name: p.name,
+  brand: p.brand,
+  stockFull: p.stockFull,
+  stockDecant5ml: p.stockDecant5ml,
+  stockDecant10ml: p.stockDecant10ml,
+  hasFullBottle: p.hasFullBottle,
+  hasDecant: p.hasDecant,
+  allowReservation: p.allowReservation,
+  estimatedRestockDays: p.estimatedRestockDays,
+}));
+
+// ─── Mock Data: POS ──────────────────────────────────────────────────
+export const MOCK_POS_PRODUCTS = MOCK_PRODUCTS.map((p) => ({
+  id: p.id,
+  name: p.name,
+  brand: p.brand?.name || "Sin Marca",
+  images: p.images as string[],
+  category: p.olfactoryFamily || "Sin Categoría",
+  hasFullBottle: p.hasFullBottle,
+  priceFull: p.priceFull ? Number(p.priceFull) : 0,
+  stockFull: p.stockFull,
+  hasDecant: p.hasDecant,
+  priceDecant5ml: p.priceDecant5ml ? Number(p.priceDecant5ml) : 0,
+  stockDecant5ml: p.stockDecant5ml,
+  priceDecant10ml: p.priceDecant10ml ? Number(p.priceDecant10ml) : 0,
+  stockDecant10ml: p.stockDecant10ml,
+}));
+
+// ─── Mock Data: Comprobantes ─────────────────────────────────────────
+export const MOCK_PROOFS = [
+  { id: "proof-1", customerName: "Juan Pérez", customerPhone: "+591 71234567", imageUrl: "/images/proof1.jpg", comment: "Transferencia QR - Banco Unión", status: "PENDING", createdAt: new Date("2026-07-24T10:30:00") },
+  { id: "proof-2", customerName: "María López", customerPhone: "+591 79876543", imageUrl: "/images/proof2.jpg", comment: "Pago por Tigo Money", status: "APPROVED", createdAt: new Date("2026-07-23T14:15:00") },
+  { id: "proof-3", customerName: "Carlos Mendoza", customerPhone: "+591 75556677", imageUrl: "/images/proof3.jpg", comment: "Depósito en efectivo - BNB", status: "APPROVED", createdAt: new Date("2026-07-22T09:45:00") },
+];
+
+// ─── Mock Data: Compras / Supply Orders ──────────────────────────────
+export const MOCK_SUPPLY_ORDERS = [
+  {
+    id: "supply-1",
+    providerName: "Distribuidora Al-Haramain",
+    status: "RECEIVED",
+    totalCost: "2450.00",
+    orderDate: new Date("2026-07-20"),
+    receivedDate: new Date("2026-07-22"),
+    items: [
+      { id: "item-1", variant: "125ml", product: { name: "Parfums de Marly Layton" }, quantity: 5, costPerUnit: "290.00" },
+      { id: "item-2", variant: "100ml", product: { name: "Lattafa Khamrah" }, quantity: 10, costPerUnit: "95.00" },
+    ],
+  },
+  {
+    id: "supply-2",
+    providerName: "Perfumes Europa Import",
+    status: "PENDING",
+    totalCost: "3600.00",
+    orderDate: new Date("2026-07-23"),
+    receivedDate: null,
+    items: [
+      { id: "item-3", variant: "100ml", product: { name: "Creed Aventus" }, quantity: 3, costPerUnit: "1200.00" },
+    ],
+  },
+];
+
+// ─── Mock Data: Brands ───────────────────────────────────────────────
+export const MOCK_BRANDS = [
+  { id: "brand-1", name: "Parfums de Marly", slug: "parfums-de-marly", logoUrl: null, _count: { products: 1 }, createdAt: new Date("2026-06-01"), updatedAt: new Date("2026-07-24") },
+  { id: "brand-2", name: "Creed", slug: "creed", logoUrl: null, _count: { products: 1 }, createdAt: new Date("2026-06-01"), updatedAt: new Date("2026-07-24") },
+  { id: "brand-3", name: "Lattafa", slug: "lattafa", logoUrl: null, _count: { products: 1 }, createdAt: new Date("2026-06-01"), updatedAt: new Date("2026-07-24") },
+  { id: "brand-4", name: "Afnan", slug: "afnan", logoUrl: null, _count: { products: 1 }, createdAt: new Date("2026-06-01"), updatedAt: new Date("2026-07-24") },
+];

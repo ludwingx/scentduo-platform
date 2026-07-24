@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductFormWrapper } from "../../product-form-wrapper";
 import { getBrands } from "@/app/actions/brands";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Edit } from "lucide-react";
 
 async function getProduct(id: string) {
   const product = await prisma.product.findUnique({
@@ -29,12 +32,23 @@ export default async function EditProductPage({
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Editar Producto</h1>
-        <p className="text-muted-foreground">
-          Modifica la información del perfume
-        </p>
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
+      <div className="flex items-center justify-between border-b pb-4">
+        <div className="flex items-center gap-3">
+          <Link href="/panel-admin/productos">
+            <Button variant="outline" size="icon" className="h-9 w-9">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-serif font-bold tracking-tight flex items-center gap-2">
+              <Edit className="h-6 w-6 text-gold" /> Editar Perfume
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Modifica los precios, stock e información de {product.name}
+            </p>
+          </div>
+        </div>
       </div>
 
       <ProductFormWrapper product={product} brands={brands} />

@@ -15,29 +15,29 @@ export function RegisterForm() {
   return (
     <form action={formAction} className="grid gap-4">
       <div className="grid gap-2">
-        <Label htmlFor="name" className="text-gray-300">
+        <Label htmlFor="name">
           Nombre completo
         </Label>
         <Input
           id="name"
           name="name"
           required
-          className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus-visible:ring-gold/50"
+          className="focus-visible:ring-gold/50"
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="username" className="text-gray-300">
+        <Label htmlFor="username">
           Usuario
         </Label>
         <Input
           id="username"
           name="username"
           required
-          className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus-visible:ring-gold/50"
+          className="focus-visible:ring-gold/50"
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="email" className="text-gray-300">
+        <Label htmlFor="email">
           Email
         </Label>
         <Input
@@ -46,11 +46,11 @@ export function RegisterForm() {
           type="email"
           placeholder="nombre@ejemplo.com"
           required
-          className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus-visible:ring-gold/50"
+          className="focus-visible:ring-gold/50"
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="password" className="text-gray-300">
+        <Label htmlFor="password">
           Contraseña
         </Label>
         <Input
@@ -58,7 +58,7 @@ export function RegisterForm() {
           name="password"
           type="password"
           required
-          className="bg-white/5 border-white/10 text-white focus-visible:ring-gold/50"
+          className="focus-visible:ring-gold/50"
         />
       </div>
 

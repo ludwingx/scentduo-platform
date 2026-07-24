@@ -11,12 +11,12 @@ import LoginForm from "./login-form";
 
 export default function LoginPage() {
   return (
-    <Card className="border-border/5 bg-black/50 backdrop-blur-md shadow-2xl">
+    <Card className="border-border bg-card shadow-2xl">
       <CardHeader className="space-y-1 text-center">
-        <CardTitle className="text-2xl font-serif font-bold text-white">
+        <CardTitle className="text-2xl font-serif font-bold text-card-foreground">
           Bienvenido de nuevo
         </CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardDescription className="text-muted-foreground">
           Ingresa tus credenciales para acceder a tu cuenta
         </CardDescription>
       </CardHeader>
@@ -25,7 +25,7 @@ export default function LoginPage() {
         <LoginForm />
       </CardContent>
       <CardFooter className="flex flex-col gap-4 text-center">
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-muted-foreground">
           ¿No tienes cuenta?{" "}
           <Link
             href="/register"

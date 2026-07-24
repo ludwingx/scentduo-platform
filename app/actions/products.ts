@@ -59,6 +59,10 @@ const productSchema = z.object({
   gender: z.string().optional(),
   season: z.string().optional(),
   occasion: z.string().optional(),
+  longevity: z.string().optional(),
+  sillage: z.string().optional(),
+  allowReservation: z.string().optional(),
+  estimatedRestockDays: z.string().optional(),
 
   // Pricing & Availability
   hasDecant: z.string().optional(),
@@ -91,6 +95,10 @@ export async function createProduct(formData: FormData) {
     gender: formData.get("gender"),
     season: formData.get("season"),
     occasion: formData.get("occasion"),
+    longevity: formData.get("longevity"),
+    sillage: formData.get("sillage"),
+    allowReservation: formData.get("allowReservation"),
+    estimatedRestockDays: formData.get("estimatedRestockDays"),
 
     hasDecant: formData.get("hasDecant"),
     priceDecant5ml: formData.get("priceDecant5ml"),
@@ -138,6 +146,12 @@ export async function createProduct(formData: FormData) {
         gender: validatedFields.data.gender,
         season: validatedFields.data.season,
         occasion: validatedFields.data.occasion,
+        longevity: validatedFields.data.longevity || null,
+        sillage: validatedFields.data.sillage || null,
+        allowReservation: validatedFields.data.allowReservation === "on",
+        estimatedRestockDays: validatedFields.data.estimatedRestockDays
+          ? parseInt(validatedFields.data.estimatedRestockDays)
+          : null,
 
         hasDecant: validatedFields.data.hasDecant === "on",
         priceDecant5ml: validatedFields.data.priceDecant5ml
@@ -215,6 +229,10 @@ export async function updateProduct(id: string, formData: FormData) {
     gender: formData.get("gender"),
     season: formData.get("season"),
     occasion: formData.get("occasion"),
+    longevity: formData.get("longevity"),
+    sillage: formData.get("sillage"),
+    allowReservation: formData.get("allowReservation"),
+    estimatedRestockDays: formData.get("estimatedRestockDays"),
 
     hasDecant: formData.get("hasDecant"),
     priceDecant5ml: formData.get("priceDecant5ml"),
@@ -318,6 +336,12 @@ export async function updateProduct(id: string, formData: FormData) {
           gender: validatedFields.data.gender,
           season: validatedFields.data.season,
           occasion: validatedFields.data.occasion,
+          longevity: validatedFields.data.longevity || null,
+          sillage: validatedFields.data.sillage || null,
+          allowReservation: validatedFields.data.allowReservation === "on",
+          estimatedRestockDays: validatedFields.data.estimatedRestockDays
+            ? parseInt(validatedFields.data.estimatedRestockDays)
+            : null,
 
           hasDecant: validatedFields.data.hasDecant === "on",
           priceDecant5ml: newPriceDecant5ml,

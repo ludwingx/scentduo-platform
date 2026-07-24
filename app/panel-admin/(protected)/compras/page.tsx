@@ -4,21 +4,27 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SupplyOrdersTable } from "./supply-orders-table";
+import { isDemoMode, MOCK_SUPPLY_ORDERS } from "@/lib/demo";
 
 async function getSupplyOrders() {
-  const orders = await prisma.supplyOrder.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      items: {
-        include: {
-          product: {
-            select: { name: true },
+  if (await isDemoMode()) return MOCK_SUPPLY_ORDERS;
+
+  try {
+    return await prisma.supplyOrder.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: { name: true },
+            },
           },
         },
       },
-    },
-  });
-  return orders;
+    });
+  } catch {
+    return MOCK_SUPPLY_ORDERS;
+  }
 }
 
 export default async function SupplyOrdersPage() {

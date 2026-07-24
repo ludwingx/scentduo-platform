@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import CartSidebar from "./CartSidebar";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export default function FloatingCartButton() {
+  const pathname = usePathname();
   const { items, isOpen, setOpen } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -18,6 +20,15 @@ export default function FloatingCartButton() {
   }, []);
 
   if (!mounted) return null;
+
+  // Do not display cart button in admin panel or auth pages
+  if (
+    pathname?.startsWith("/panel-admin") ||
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/register")
+  ) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50">

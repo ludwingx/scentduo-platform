@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Menu } from "lucide-react";
+import { Menu, User, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
@@ -53,9 +53,9 @@ export function Navbar() {
             <Image src="/logo/logo.png" alt="Logo" width={40} height={40} />
           </div>
           <span className="text-2xl font-serif font-bold tracking-tighter text-foreground group-hover:text-primary transition-colors">
-            SCENT{" "}
+            ESSENCE{" "}
             <span className="text-gold group-hover:text-foreground transition-colors">
-              DUO
+              OS
             </span>
           </span>
         </Link>
@@ -73,12 +73,32 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
           <ThemeToggle />
+          <Link href="/login">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Iniciar Sesión / Admin"
+              className="text-muted-foreground hover:text-primary"
+            >
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          <Link href="/login">
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Iniciar Sesión"
+              className="text-foreground hover:bg-accent"
+            >
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
           {isMounted ? (
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -95,7 +115,14 @@ export function Navbar() {
                 className="w-[300px] bg-background/95 border-l border-border/60"
               >
                 <div className="flex flex-col gap-8 mt-10">
-                  <div className="flex justify-end">
+                  <div className="flex justify-between items-center">
+                    <Link
+                      href="/login"
+                      onClick={() => setIsOpen(false)}
+                      className="text-sm font-medium text-muted-foreground hover:text-primary flex items-center gap-2"
+                    >
+                      <User className="h-4 w-4" /> Iniciar Sesión / Admin
+                    </Link>
                     <ThemeToggle />
                   </div>
                   {NAV_LINKS.map((link) => (

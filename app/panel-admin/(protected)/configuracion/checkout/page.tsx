@@ -4,29 +4,47 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { CheckoutForm } from "./checkout-form";
+import { isDemoMode } from "@/lib/demo";
+
+const MOCK_CHECKOUT_CONFIG = {
+  whatsappNumber: "59170000000",
+  introText: "¡Hola! Quisiera realizar el siguiente pedido en EssenceOS:",
+  paymentMethods: "Transferencia Bancaria QR (Banco Unión / BNB) / Tigo Money",
+  outroText: "Por favor envíanos la captura de tu pago para procesar el envío inmediato.",
+};
 
 async function getConfig() {
-  const config = await prisma.checkoutConfig.findUnique({ where: { id: 1 } });
+  if (await isDemoMode()) return MOCK_CHECKOUT_CONFIG;
 
-  return {
-    whatsappNumber: config?.whatsappNumber || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "591XXXXXXXX",
-    introText: config?.introText || null,
-    paymentMethods: config?.paymentMethods || null,
-    outroText: config?.outroText || null,
-  };
+  try {
+    const config = await prisma.checkoutConfig.findUnique({ where: { id: 1 } });
+    return {
+      whatsappNumber: config?.whatsappNumber || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "59170000000",
+      introText: config?.introText || null,
+      paymentMethods: config?.paymentMethods || null,
+      outroText: config?.outroText || null,
+    };
+  } catch {
+    return MOCK_CHECKOUT_CONFIG;
+  }
 }
 
 export default async function CheckoutConfigPage() {
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/panel-admin");
-  }
+  const isDemo = await isDemoMode();
 
-  if ((session.user.role || "").toUpperCase() !== "ADMIN") {
-    redirect("/panel-admin/dashboard");
+  if (!isDemo) {
+    const session = await auth();
+    if (!session?.user) {
+      redirect("/panel-admin");
+    }
+
+    if ((session.user.role || "").toUpperCase() !== "ADMIN") {
+      redirect("/panel-admin/dashboard");
+    }
   }
 
   const initial = await getConfig();
+  const backLink = isDemo ? "/demo/panel-admin/configuracion" : "/panel-admin/configuracion";
 
   return (
     <div className="space-y-8">
@@ -38,7 +56,7 @@ export default async function CheckoutConfigPage() {
           </p>
         </div>
 
-        <Link href="/panel-admin/configuracion">
+        <Link href={backLink}>
           <Button type="button" variant="outline">
             Volver
           </Button>

@@ -169,3 +169,18 @@ export const BASE_NOTES = [
   "Pino",
   "Nardo",
 ];
+
+export const LONGEVITY_OPTIONS = [
+  "2 - 4 Horas (Suave / Ligera)",
+  "4 - 6 Horas (Moderada)",
+  "6 - 8 Horas (Duradera)",
+  "8 - 12 Horas (Alta Duración)",
+  "12+ Horas (Bestial / Extrema)",
+];
+
+export const SILLAGE_OPTIONS = [
+  "Íntima / A flor de piel",
+  "Moderada (Radio de 1 metro)",
+  "Pesada / Notable (Radio de 2 metros)",
+  "Enorme / Envolvente (Llena la habitación)",
+];

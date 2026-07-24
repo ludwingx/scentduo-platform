@@ -96,34 +96,34 @@ export default function HomePage() {
           <div className="flex flex-col justify-center space-y-6 md:space-y-8 order-1 lg:order-2 text-center lg:text-left min-h-[75vh] lg:min-h-0 lg:pt-0">
             <div>
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-serif font-bold tracking-tight leading-none mb-4">
-                SCENT <span className="text-gold">DUO</span>
+                ESSENCE <span className="text-gold">OS</span>
               </h1>
-              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 font-light italic mb-4 md:mb-6">
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground font-light italic mb-4 md:mb-6">
                 Fragancias que hablan por vos.
               </p>
-              <p className="text-base sm:text-lg text-gray-400 leading-relaxed max-w-lg mx-auto lg:mx-0">
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0">
                 Perfumes originales y de alta duración.
               </p>
             </div>
 
             {/* Info Points */}
             <div className="space-y-3 flex flex-col items-center lg:items-start">
-              <div className="flex items-center gap-3 text-gray-300 text-sm sm:text-base">
+              <div className="flex items-center gap-3 text-muted-foreground text-sm sm:text-base">
                 <Package className="h-5 w-5 text-gold flex-shrink-0" />
                 <span>Envíos a toda Bolivia</span>
               </div>
-              <div className="flex items-center gap-3 text-gray-300 text-sm sm:text-base">
+              <div className="flex items-center gap-3 text-muted-foreground text-sm sm:text-base">
                 <Send className="h-5 w-5 text-gold flex-shrink-0" />
-                <span>Pedidos por WhatsApp</span>
+                <span>Atención & Pedidos Directos</span>
               </div>
             </div>
 
-            {/* CTA */}
-            <div className="pt-4 flex justify-center lg:justify-start">
+            {/* CTA Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link href="/catalogo">
                 <Button
                   size="default"
-                  className="w-full cursor-pointer hover:opacity-90 sm:w-auto px-10 py-7 rounded-full bg-gold text-black hover:opacity-90 font-bold text-lg shadow-xl hover:shadow-gold/20 transition-all"
+                  className="w-full sm:w-auto px-8 py-7 rounded-full bg-gold text-black hover:opacity-90 font-bold text-lg shadow-xl hover:shadow-gold/20 transition-all"
                 >
                   Explorar Catálogo
                 </Button>
@@ -148,13 +148,13 @@ export default function HomePage() {
               </div>
 
               {/* Product Info - Posicionado A LA IZQUIERDA Y ARRIBA UN POCO */}
-              <div className="absolute **bottom-4** left-0 w-[62%] sm:w-[60%] lg:w-[55%] flex flex-col items-start space-y-2 p-3 rounded-xl shadow-2xl shadow-gold/10">
+              <div className="absolute bottom-4 left-0 w-[62%] sm:w-[60%] lg:w-[55%] flex flex-col items-start space-y-2 p-3 rounded-xl bg-card/90 border border-border/60 backdrop-blur-md shadow-2xl shadow-gold/10">
                 {/* Badge & Name */}
                 <div className="text-left">
                   <span className="bg-gold text-black text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded block mb-1">
                     {FEATURED_HERO_PRODUCT.badge}
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white line-clamp-1">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground line-clamp-1">
                     {FEATURED_HERO_PRODUCT.name}
                   </h3>
                 </div>
@@ -164,7 +164,7 @@ export default function HomePage() {
                   <span className="text-3xl font-extrabold text-gold">
                     Bs {FEATURED_HERO_PRODUCT.priceDecant10ml}
                   </span>
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-sm text-muted-foreground line-through">
                     Bs {FEATURED_HERO_PRODUCT.originalPrice}
                   </span>
                 </div>

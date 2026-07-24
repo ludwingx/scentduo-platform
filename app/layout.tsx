@@ -17,9 +17,9 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "ScentDuo - Decants de Perfumes Exclusivos",
+  title: "EssenceOS - Plataforma ERP & Boutique de Perfumes",
   description:
-    "Descubre tu esencia única con nuestros decants de alta perfumería.",
+    "Sistema integral de gestión comercial, fraccionamiento de decants y catálogo de perfumería exclusiva.",
 };
 
 export default function RootLayout({

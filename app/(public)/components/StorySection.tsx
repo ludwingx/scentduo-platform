@@ -7,13 +7,13 @@ export default function StorySection() {
   return (
     <section
       id="story"
-      className="py-20 bg-transparent text-white overflow-hidden"
+      className="py-20 bg-transparent text-foreground overflow-hidden"
     >
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* Image Side */}
           <div className="w-full lg:w-1/2 relative">
-            <div className="relative aspect-[4/5] w-full max-w-md mx-auto lg:max-w-none rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+            <div className="relative aspect-[4/5] w-full max-w-md mx-auto lg:max-w-none rounded-2xl overflow-hidden shadow-2xl border border-border/50">
               <Image
                 src={PLACEHOLDER_IMAGE}
                 alt="El arte de los decants"
@@ -37,9 +37,9 @@ export default function StorySection() {
               </h3>
             </div>
 
-            <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
+            <div className="space-y-6 text-muted-foreground text-lg leading-relaxed">
               <p>
-                En <span className="text-white font-semibold">ScentDuo</span>,
+                En <span className="text-foreground font-semibold">EssenceOS</span>,
                 creemos que el lujo no debería ser inaccesible. Nuestra pasión
                 por la alta perfumería nos llevó a crear una experiencia donde
                 puedes explorar las fragancias más exclusivas del mundo sin

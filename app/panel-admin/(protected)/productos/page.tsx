@@ -4,12 +4,19 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ProductsTable } from "./products-table";
+import { isDemoMode, MOCK_PRODUCTS } from "@/lib/demo";
 
 async function getProducts() {
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  return products;
+  if (await isDemoMode()) return MOCK_PRODUCTS;
+
+  try {
+    return await prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { brand: { select: { name: true } } },
+    });
+  } catch {
+    return MOCK_PRODUCTS;
+  }
 }
 
 export default async function ProductsPage() {

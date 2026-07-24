@@ -6,13 +6,17 @@ export const authConfig = {
     newUser: "/register",
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
+      const { nextUrl } = request;
       const isOnAdminPanel = nextUrl.pathname.startsWith("/panel-admin");
-      const isOnAuthInfo = nextUrl.pathname.startsWith("/api/auth"); // Always allow auth routes
+      const isDemoMode =
+        nextUrl.searchParams.get("demo") === "true" ||
+        nextUrl.pathname.startsWith("/demo") ||
+        request.cookies?.get("essenceos_demo")?.value === "true";
 
       if (isOnAdminPanel) {
-        if (isLoggedIn) return true;
+        if (isLoggedIn || isDemoMode) return true;
         return false; // Redirect unauthenticated users to login page
       }
 
