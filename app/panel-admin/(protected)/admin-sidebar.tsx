@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -18,7 +19,6 @@ import {
 
 import { NavUser } from "@/components/nav-user";
 import { DemoModeToggle } from "@/components/demo-mode-toggle";
-import { Badge } from "@/components/ui/badge";
 import dynamic from "next/dynamic";
 import {
   Sidebar,
@@ -35,6 +35,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const ThemeToggle = dynamic(
@@ -51,26 +52,62 @@ export function AdminSidebar({
   user: { name?: string | null; email?: string | null; avatar?: string | null };
   isDemoMode?: boolean;
 }) {
-  const pathname = usePathname();
-  const isDemo = isDemoMode || pathname?.startsWith("/demo");
+  const { isMobile, setOpenMobile } = useSidebar();
+  const pathname = usePathname() || "";
+
+  // Auto-close sidebar on mobile whenever the route/pathname changes
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, isMobile, setOpenMobile]);
+  const isDemo = isDemoMode || pathname.startsWith("/demo");
   const getLinkPath = (path: string) => (isDemo ? `/demo${path}` : path);
+
+  const cleanPathname = pathname.replace(/^\/demo/, "");
+  const isActiveRoute = (path: string) => {
+    if (path === "/panel-admin/dashboard") {
+      return cleanPathname === "/panel-admin/dashboard" || cleanPathname === "/panel-admin" || cleanPathname === "/panel-admin/";
+    }
+    if (path === "/panel-admin/inventario") {
+      return cleanPathname === "/panel-admin/inventario";
+    }
+    if (path === "/panel-admin/configuracion") {
+      return cleanPathname === "/panel-admin/configuracion";
+    }
+    return cleanPathname === path || cleanPathname.startsWith(path + "/");
+  };
+
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile && (e.target as HTMLElement).closest("a")) {
+      setOpenMobile(false);
+    }
+  };
+
+  const activeMenuClass =
+    "data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 data-[active=true]:font-bold data-[active=true]:border-l-4 data-[active=true]:border-amber-500 transition-all";
 
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
-        <div className="px-2 py-1">
-          <div className="text-sm font-semibold text-sidebar-foreground">
-            Admin Panel
+        <div className="px-2 py-1 flex items-center justify-between">
+          <div className="text-sm font-bold text-sidebar-foreground tracking-wide font-serif">
+            EssenceOS ERP
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent onClick={handleContentClick}>
         <SidebarGroup>
           <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Dashboard">
+              <SidebarMenuButton
+                asChild
+                tooltip="Dashboard"
+                isActive={isActiveRoute("/panel-admin/dashboard")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/dashboard")}>
                   <LayoutDashboard />
                   <span>Dashboard</span>
@@ -79,7 +116,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Productos">
+              <SidebarMenuButton
+                asChild
+                tooltip="Productos"
+                isActive={isActiveRoute("/panel-admin/productos")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/productos")}>
                   <Package />
                   <span>Productos</span>
@@ -88,7 +130,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Comprobantes">
+              <SidebarMenuButton
+                asChild
+                tooltip="Comprobantes"
+                isActive={isActiveRoute("/panel-admin/comprobantes")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/comprobantes")}>
                   <FileText />
                   <span>Comprobantes</span>
@@ -104,7 +151,12 @@ export function AdminSidebar({
           <SidebarGroupLabel>Operación & Reportes</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Inventario">
+              <SidebarMenuButton
+                asChild
+                tooltip="Inventario"
+                isActive={isActiveRoute("/panel-admin/inventario")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/inventario")}>
                   <ClipboardList />
                   <span>Inventario</span>
@@ -112,7 +164,11 @@ export function AdminSidebar({
               </SidebarMenuButton>
               <SidebarMenuSub>
                 <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActiveRoute("/panel-admin/inventario/kardex")}
+                    className="data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 data-[active=true]:font-bold"
+                  >
                     <Link href={getLinkPath("/panel-admin/inventario/kardex")}>
                       <span>Kardex de Movimientos</span>
                     </Link>
@@ -122,7 +178,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Compras">
+              <SidebarMenuButton
+                asChild
+                tooltip="Compras"
+                isActive={isActiveRoute("/panel-admin/compras")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/compras")}>
                   <ShoppingBag />
                   <span>Compras</span>
@@ -131,7 +192,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Punto de Venta">
+              <SidebarMenuButton
+                asChild
+                tooltip="Punto de Venta"
+                isActive={isActiveRoute("/panel-admin/pos")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/pos")}>
                   <Store />
                   <span>Punto de Venta</span>
@@ -140,7 +206,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Combos & Mezclas">
+              <SidebarMenuButton
+                asChild
+                tooltip="Combos & Mezclas"
+                isActive={isActiveRoute("/panel-admin/mezclas")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/mezclas")}>
                   <Layers className="text-gold" />
                   <span>Combos & Custom Blends</span>
@@ -149,7 +220,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Etiquetas QR">
+              <SidebarMenuButton
+                asChild
+                tooltip="Etiquetas QR"
+                isActive={isActiveRoute("/panel-admin/etiquetas")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/etiquetas")}>
                   <QrCode />
                   <span>Etiquetas Térmicas QR</span>
@@ -158,7 +234,12 @@ export function AdminSidebar({
             </SidebarMenuItem>
 
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Rentabilidad">
+              <SidebarMenuButton
+                asChild
+                tooltip="Rentabilidad"
+                isActive={isActiveRoute("/panel-admin/reportes/rentabilidad")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/reportes/rentabilidad")}>
                   <PieChart />
                   <span>Rentabilidad por Fragancia</span>
@@ -174,7 +255,12 @@ export function AdminSidebar({
           <SidebarGroupLabel>Configuración</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Configuración">
+              <SidebarMenuButton
+                asChild
+                tooltip="Configuración"
+                isActive={isActiveRoute("/panel-admin/configuracion")}
+                className={activeMenuClass}
+              >
                 <Link href={getLinkPath("/panel-admin/configuracion")}>
                   <Settings />
                   <span>Configuración</span>
@@ -183,28 +269,44 @@ export function AdminSidebar({
 
               <SidebarMenuSub>
                 <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActiveRoute("/panel-admin/configuracion/marcas")}
+                    className="data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 data-[active=true]:font-bold"
+                  >
                     <Link href={getLinkPath("/panel-admin/configuracion/marcas")}>
                       <span>Marcas</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
                 <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActiveRoute("/panel-admin/configuracion/chatbot")}
+                    className="data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 data-[active=true]:font-bold"
+                  >
                     <Link href={getLinkPath("/panel-admin/configuracion/chatbot")}>
                       <span>Conexión API</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
                 <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActiveRoute("/panel-admin/configuracion/tienda")}
+                    className="data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 data-[active=true]:font-bold"
+                  >
                     <Link href={getLinkPath("/panel-admin/configuracion/tienda")}>
                       <span>Parámetros ERP</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
                 <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild>
+                  <SidebarMenuSubButton
+                    asChild
+                    isActive={isActiveRoute("/panel-admin/configuracion/perfil")}
+                    className="data-[active=true]:bg-amber-500/15 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 data-[active=true]:font-bold"
+                  >
                     <Link href={getLinkPath("/panel-admin/configuracion/perfil")}>
                       <span>Perfil & Seguridad</span>
                     </Link>

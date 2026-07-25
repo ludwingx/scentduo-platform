@@ -56,11 +56,26 @@ export default async function PosPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-6rem)]">
-      <h1 className="text-2xl font-bold mb-4 font-serif">
-        Punto de Venta (POS) {isDemo && "(Modo Demo)"}
-      </h1>
-      <PosInterface products={products} />
+    <div className="flex flex-col space-y-3 lg:h-[calc(100vh-6.5rem)] lg:overflow-hidden min-h-0">
+      <div className="flex items-center justify-between shrink-0">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight font-serif flex items-center gap-2">
+            Punto de Venta (POS)
+            {isDemo && (
+              <span className="text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+                Modo Demo
+              </span>
+            )}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Cobranza en mostrador, fraccionamiento instantáneo e impresión de recibos
+          </p>
+        </div>
+      </div>
+
+      <div className="flex-1 min-h-0 lg:overflow-hidden">
+        <PosInterface products={products} />
+      </div>
     </div>
   );
 }
