@@ -1,2 +1,2 @@
 export const PLACEHOLDER_IMAGE =
-  "https://via.placeholder.com/1000?text=Image+Not+Found";
+  "https://owp.klarna.com/product/1200x1200/1912597133/Creed-Aventus-EdP-100ml.jpg";

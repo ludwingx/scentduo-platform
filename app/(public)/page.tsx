@@ -45,8 +45,9 @@ const FEATURED_PRODUCTS = [
     id: "2",
     name: "Creed Aventus",
     description: "La fragancia de los reyes.",
-    // category: "Masculino", // Removed
-    images: [PLACEHOLDER_IMAGE],
+    images: [
+      "https://owp.klarna.com/product/1200x1200/1912597133/Creed-Aventus-EdP-100ml.jpg",
+    ],
     hasDecant: true,
     priceDecant5ml: 90,
     priceDecant10ml: 150,
@@ -58,7 +59,6 @@ const FEATURED_PRODUCTS = [
     id: "3",
     name: "Baccarat Rouge 540",
     description: "Luminoso y sofisticado.",
-    // category: "Unisex", // Removed
     images: [
       "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1000&auto=format&fit=crop",
     ],
@@ -76,8 +76,9 @@ const FEATURED_PRODUCTS = [
     id: "4",
     name: "Chanel No 5",
     description: "La esencia de la feminidad.",
-    // category: "Femenino", // Removed
-    images: [PLACEHOLDER_IMAGE],
+    images: [
+      "https://images.unsplash.com/photo-1594035910387-fea47794261d?q=80&w=1000&auto=format&fit=crop",
+    ],
     hasDecant: false,
     hasFullBottle: true,
     priceFull: 1400,

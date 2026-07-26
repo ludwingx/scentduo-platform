@@ -53,7 +53,9 @@ const PRODUCTS = [
       "La fragancia de los reyes. Aventus celebra la fuerza, la visión y el éxito, inspirado en la vida dramática de la guerra, la paz y el romance vivido por el emperador Napoleón.",
     priceDecant: 150,
     priceFull: 2500,
-    images: [PLACEHOLDER_IMAGE],
+    images: [
+      "https://owp.klarna.com/product/1200x1200/1912597133/Creed-Aventus-EdP-100ml.jpg",
+    ],
     category: "Masculino",
   },
   {

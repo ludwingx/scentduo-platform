@@ -10,9 +10,22 @@ export function DemoModeToggle({ isDemoMode = false }: { isDemoMode?: boolean })
 
   const handleToggle = (checked: boolean) => {
     if (checked) {
-      window.location.href = "/demo/panel-admin/dashboard";
+      let targetPath = pathname || "/panel-admin/dashboard";
+      if (!targetPath.startsWith("/demo")) {
+        if (targetPath.startsWith("/panel-admin")) {
+          targetPath = `/demo${targetPath}`;
+        } else {
+          targetPath = "/demo/panel-admin/dashboard";
+        }
+      }
+      window.location.href = targetPath;
     } else {
-      window.location.href = "/login";
+      document.cookie = "essenceos_demo=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      let targetPath = pathname ? pathname.replace(/^\/demo/, "") : "/panel-admin/dashboard";
+      if (!targetPath.startsWith("/panel-admin")) {
+        targetPath = "/login";
+      }
+      window.location.href = targetPath;
     }
   };
 

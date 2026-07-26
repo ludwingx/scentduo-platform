@@ -53,7 +53,7 @@ const MOCK_PRODUCTS = [
     name: "Creed Aventus",
     description: "La fragancia de los reyes. Notas de piña, bergamota y roble.",
     images: [
-      "https://images.unsplash.com/photo-1594035910387-fea47794261d?q=80&w=1000&auto=format&fit=crop",
+      "https://owp.klarna.com/product/1200x1200/1912597133/Creed-Aventus-EdP-100ml.jpg",
     ],
     hasDecant: true,
     priceDecant5ml: 90,

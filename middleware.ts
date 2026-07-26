@@ -24,8 +24,18 @@ export default authHandler((req) => {
     return response;
   }
 
-  // Exiting demo mode: clear cookie when going to login or navigating panel-admin directly
-  if (nextUrl.pathname === "/login" || nextUrl.pathname.startsWith("/panel-admin")) {
+  // Accessing /panel-admin routes directly when demo cookie is active: redirect to /demo/panel-admin/...
+  if (nextUrl.pathname.startsWith("/panel-admin")) {
+    const hasDemoCookie = req.cookies?.get("essenceos_demo")?.value === "true";
+    if (hasDemoCookie) {
+      const targetUrl = new URL(`/demo${nextUrl.pathname}`, req.url);
+      targetUrl.search = nextUrl.search;
+      return NextResponse.redirect(targetUrl);
+    }
+  }
+
+  // Clear demo cookie when navigating explicitly to /login
+  if (nextUrl.pathname === "/login") {
     const hasDemoCookie = req.cookies?.get("essenceos_demo")?.value === "true";
     if (hasDemoCookie) {
       const response = NextResponse.next();

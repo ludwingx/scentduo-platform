@@ -47,7 +47,9 @@ const PRODUCTS = [
     name: "Creed Aventus",
     description: "La fragancia de los reyes.",
     category: "Masculino",
-    images: [PLACEHOLDER_IMAGE],
+    images: [
+      "https://owp.klarna.com/product/1200x1200/1912597133/Creed-Aventus-EdP-100ml.jpg",
+    ],
     hasDecant: true,
     priceDecant5ml: 90,
     priceDecant10ml: 150,
