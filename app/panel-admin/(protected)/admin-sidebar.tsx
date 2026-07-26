@@ -15,7 +15,9 @@ import {
   QrCode,
   PieChart,
   Layers,
+  X,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import { NavUser } from "@/components/nav-user";
 import { DemoModeToggle } from "@/components/demo-mode-toggle";
@@ -94,6 +96,17 @@ export function AdminSidebar({
           <div className="text-sm font-bold text-sidebar-foreground tracking-wide font-serif">
             EssenceOS ERP
           </div>
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Cerrar menú"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </SidebarHeader>
 
