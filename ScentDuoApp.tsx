@@ -88,7 +88,7 @@ const MOCK_PRODUCTS = [
     name: "Chanel No 5",
     description: "La esencia de la feminidad. Floral y atemporal.",
     images: [
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=1000&auto=format&fit=crop",
+      "https://tse3.mm.bing.net/th/id/OIP.1C0ATeBcOt5ZxuZ3f1MpFQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
     ],
     hasDecant: false,
     hasFullBottle: true,

@@ -80,7 +80,9 @@ const PRODUCTS = [
     name: "Chanel No 5",
     description: "La esencia de la feminidad.",
     category: "Femenino",
-    images: [PLACEHOLDER_IMAGE],
+    images: [
+      "https://tse3.mm.bing.net/th/id/OIP.1C0ATeBcOt5ZxuZ3f1MpFQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+    ],
     hasDecant: false,
     hasFullBottle: true,
     priceFull: 1400,

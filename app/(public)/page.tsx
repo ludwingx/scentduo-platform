@@ -77,7 +77,7 @@ const FEATURED_PRODUCTS = [
     name: "Chanel No 5",
     description: "La esencia de la feminidad.",
     images: [
-      "https://images.unsplash.com/photo-1594035910387-fea47794261d?q=80&w=1000&auto=format&fit=crop",
+      "https://tse3.mm.bing.net/th/id/OIP.1C0ATeBcOt5ZxuZ3f1MpFQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
     ],
     hasDecant: false,
     hasFullBottle: true,
