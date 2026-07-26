@@ -183,6 +183,10 @@ export function AppSidebar({ isDemoMode = false }: { isDemoMode?: boolean }) {
       <div className="px-6 pb-6 space-y-3">
         <DemoModeToggle isDemoMode={isDemoMode} />
 
+        <div className="text-[11px] text-center text-muted-foreground font-medium tracking-tight py-0.5 border-b border-border/40 pb-1.5">
+          Desarrollado por <span className="font-bold text-foreground">Ludwing A. Saavedra</span>
+        </div>
+
         <div className="flex items-center justify-between border-t border-border/50 pt-3">
           <div className="text-sm text-muted-foreground font-medium">Tema</div>
           <ThemeToggle />

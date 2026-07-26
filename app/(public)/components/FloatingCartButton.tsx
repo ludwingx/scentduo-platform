@@ -21,11 +21,12 @@ export default function FloatingCartButton() {
 
   if (!mounted) return null;
 
-  // Do not display cart button in admin panel or auth pages
+  // Do not display cart button in admin panel (including demo mode) or auth pages
   if (
-    pathname?.startsWith("/panel-admin") ||
-    pathname?.startsWith("/login") ||
-    pathname?.startsWith("/register")
+    !pathname ||
+    pathname.includes("/panel-admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register")
   ) {
     return null;
   }

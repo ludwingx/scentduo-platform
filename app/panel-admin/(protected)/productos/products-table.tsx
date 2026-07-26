@@ -14,7 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2, History, Search, Sparkles } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Edit, Trash2, History, Search, Sparkles, AlertTriangle } from "lucide-react";
 import { deleteProduct } from "@/app/actions/products";
 import { toast } from "sonner";
 
@@ -35,15 +43,24 @@ interface Product {
 
 export function ProductsTable({ products }: { products: Product[] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`¿Estás seguro de eliminar "${name}"?`)) {
-      const result = await deleteProduct(id);
+  const confirmDelete = async () => {
+    if (!deletingProduct) return;
+    setIsDeleting(true);
+    try {
+      const result = await deleteProduct(deletingProduct.id);
       if (result.success) {
         toast.success(result.message);
       } else {
         toast.error(result.message);
       }
+    } catch {
+      toast.error("Error al eliminar el producto");
+    } finally {
+      setIsDeleting(false);
+      setDeletingProduct(null);
     }
   };
 
@@ -113,7 +130,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-sm">{product.name}</span>
                           {product.isFeatured && (
-                            <Badge className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-amber-200 text-[10px] gap-1 px-1.5 py-0">
+                            <Badge variant="gold" className="text-[10px] gap-1 px-1.5 py-0">
                               <Sparkles className="h-2.5 w-2.5" /> Hero
                             </Badge>
                           )}
@@ -165,7 +182,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={product.isActive ? "default" : "secondary"}>
+                    <Badge variant={product.isActive ? "success" : "secondary"}>
                       {product.isActive ? "Activo" : "Borrador"}
                     </Badge>
                   </TableCell>
@@ -192,7 +209,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(product.id, product.name)}
+                        onClick={() => setDeletingProduct(product)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -204,6 +221,43 @@ export function ProductsTable({ products }: { products: Product[] }) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete Product Confirmation Modal */}
+      <Dialog open={!!deletingProduct} onOpenChange={() => setDeletingProduct(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive font-bold text-lg">
+              <AlertTriangle className="h-5 w-5" /> Eliminar Perfume
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-foreground">
+              ¿Estás seguro de eliminar el perfume{" "}
+              <span className="font-bold">"{deletingProduct?.name}"</span> del catálogo comercial?
+              <br />
+              <span className="block mt-2 text-xs text-muted-foreground">
+                Esta acción removerá el producto, sus precios de decants e imágenes asociadas.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-3">
+            <Button
+              variant="outline"
+              onClick={() => setDeletingProduct(null)}
+              disabled={isDeleting}
+              className="rounded-xl"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="font-bold rounded-xl gap-1.5"
+            >
+              {isDeleting ? "Eliminando..." : "Sí, Eliminar Perfume"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

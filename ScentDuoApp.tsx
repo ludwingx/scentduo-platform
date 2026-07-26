@@ -819,7 +819,7 @@ export default function ScentDuoApp() {
           {/* Sidebar */}
           <div className="absolute right-0 top-0 h-full w-full sm:max-w-md bg-[#0A0A0A] border-l border-gold/20 shadow-2xl flex flex-col animate-in slide-in-from-right-2">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gold/20">
+            <div className="flex items-center justify-between p-6 border-b border-gold/20 shrink-0">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="h-5 w-5 text-gold" />
                 <h2 className="text-lg font-serif font-bold">Tu Carrito</h2>
@@ -830,7 +830,7 @@ export default function ScentDuoApp() {
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 min-h-0 overflow-y-auto p-6">
               {cartItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-4">
                   <ShoppingBag className="h-16 w-16 opacity-20" />
@@ -911,7 +911,7 @@ export default function ScentDuoApp() {
 
             {/* Footer */}
             {cartItems.length > 0 && (
-              <div className="p-6 border-t border-gold/20 space-y-4">
+              <div className="p-6 border-t border-gold/20 space-y-4 shrink-0">
                 <div className="flex items-center justify-between font-medium text-lg">
                   <span>Total</span>
                   <span className="text-gold font-bold">Bs {cartTotal}</span>

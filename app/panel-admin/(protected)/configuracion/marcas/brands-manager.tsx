@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -24,7 +25,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { createBrand, deleteBrand, updateBrand } from "@/app/actions/brands";
-import { Edit, Trash2, Plus } from "lucide-react";
+import { Edit, Trash2, Plus, AlertTriangle } from "lucide-react";
 
 type BrandRow = {
   id: string;
@@ -44,6 +45,9 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
   const [editName, setEditName] = useState("");
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const [deletingBrand, setDeletingBrand] = useState<BrandRow | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const totalBrands = useMemo(() => brands.length, [brands.length]);
 
@@ -104,14 +108,9 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
 
       setBrands((prev) =>
         prev
-          .map((b) =>
-            b.id === editingBrand.id
-              ? { ...b, name: res.brand.name, slug: res.brand.slug }
-              : b
-          )
+          .map((b) => (b.id === editingBrand.id ? { ...b, name: res.brand!.name, slug: res.brand!.slug } : b))
           .sort((a, b) => a.name.localeCompare(b.name))
       );
-
       toast.success("Marca actualizada");
       setIsEditOpen(false);
       setEditingBrand(null);
@@ -122,15 +121,22 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
     }
   };
 
-  const handleDelete = async (brand: BrandRow) => {
-    if (!confirm(`¿Eliminar la marca "${brand.name}"?`)) return;
-
-    const res = await deleteBrand(brand.id);
-    if (res.success) {
-      setBrands((prev) => prev.filter((b) => b.id !== brand.id));
-      toast.success(res.message || "Marca eliminada");
-    } else {
-      toast.error(res.message || "Error al eliminar marca");
+  const confirmDeleteBrand = async () => {
+    if (!deletingBrand) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteBrand(deletingBrand.id);
+      if (res.success) {
+        setBrands((prev) => prev.filter((b) => b.id !== deletingBrand.id));
+        toast.success(res.message || "Marca eliminada");
+      } else {
+        toast.error(res.message || "Error al eliminar marca");
+      }
+    } catch {
+      toast.error("Error al eliminar marca");
+    } finally {
+      setIsDeleting(false);
+      setDeletingBrand(null);
     }
   };
 
@@ -149,51 +155,56 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
               <Label htmlFor="brandName">Nueva marca</Label>
               <Input
                 id="brandName"
+                placeholder="Ej: Armaf"
                 value={newBrandName}
                 onChange={(e) => setNewBrandName(e.target.value)}
-                placeholder="Ej: Dior, Chanel"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCreate();
+                }}
               />
             </div>
             <Button
               type="button"
               onClick={handleCreate}
               disabled={isCreating || !newBrandName.trim()}
-              className="sm:w-auto"
+              className="gap-2 shrink-0"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              {isCreating ? "Creando..." : "Crear"}
+              <Plus className="h-4 w-4" />
+              {isCreating ? "Creando..." : "Agregar Marca"}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <div className="rounded-md border">
+      <div className="rounded-xl border shadow-sm overflow-hidden bg-card">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40">
             <TableRow>
-              <TableHead>Marca</TableHead>
+              <TableHead>Nombre</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Productos</TableHead>
+              <TableHead>Productos asociados</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {brands.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  No hay marcas registradas
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                  No hay marcas registradas.
                 </TableCell>
               </TableRow>
             ) : (
               brands.map((brand) => (
-                <TableRow key={brand.id}>
-                  <TableCell className="font-medium">{brand.name}</TableCell>
+                <TableRow key={brand.id} className="hover:bg-muted/20 transition-colors">
+                  <TableCell className="font-semibold text-sm">{brand.name}</TableCell>
+                  <TableCell className="text-xs font-mono text-muted-foreground">{brand.slug}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{brand.slug}</Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {brand._count?.products ?? 0}
+                    </Badge>
                   </TableCell>
-                  <TableCell>{brand._count.products}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -206,7 +217,7 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
                         variant="ghost"
                         size="icon"
                         className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(brand)}
+                        onClick={() => setDeletingBrand(brand)}
                         title="Eliminar"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -220,11 +231,12 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
         </Table>
       </div>
 
+      {/* Edit Brand Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogTrigger asChild>
           <span />
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>Editar Marca</DialogTitle>
           </DialogHeader>
@@ -243,8 +255,46 @@ export function BrandsManager({ initialBrands }: { initialBrands: BrandRow[] }) 
               type="button"
               onClick={handleSaveEdit}
               disabled={isSavingEdit || !editName.trim()}
+              className="rounded-xl font-bold"
             >
-              {isSavingEdit ? "Guardando..." : "Guardar"}
+              {isSavingEdit ? "Guardando..." : "Guardar Cambios"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Brand Dialog */}
+      <Dialog open={!!deletingBrand} onOpenChange={() => setDeletingBrand(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive font-bold text-lg">
+              <AlertTriangle className="h-5 w-5" /> Eliminar Marca
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-foreground">
+              ¿Estás seguro de eliminar la marca{" "}
+              <span className="font-bold">"{deletingBrand?.name}"</span>?
+              <br />
+              <span className="block mt-2 text-xs text-muted-foreground">
+                No se pueden eliminar marcas que tengan perfumes asociados en el catálogo.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-3">
+            <Button
+              variant="outline"
+              onClick={() => setDeletingBrand(null)}
+              disabled={isDeleting}
+              className="rounded-xl"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteBrand}
+              disabled={isDeleting}
+              className="font-bold rounded-xl gap-1.5"
+            >
+              {isDeleting ? "Eliminando..." : "Sí, Eliminar Marca"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -12,7 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle2, Trash2, Search, Clock, ShoppingBag } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { CheckCircle2, Trash2, Search, Clock, ShoppingBag, AlertTriangle } from "lucide-react";
 import {
   receiveSupplyOrder,
   deleteSupplyOrder,
@@ -41,27 +49,43 @@ interface SupplyOrder {
 
 export function SupplyOrdersTable({ orders }: { orders: SupplyOrder[] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [receivingOrder, setReceivingOrder] = useState<SupplyOrder | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<SupplyOrder | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleReceive = async (id: string) => {
-    if (
-      confirm(
-        "¿Confirmar recepción de pedido? Esto aumentará el stock de los productos automáticamente."
-      )
-    ) {
-      const result = await receiveSupplyOrder(id);
+  const confirmReceive = async () => {
+    if (!receivingOrder) return;
+    setIsSubmitting(true);
+    try {
+      const result = await receiveSupplyOrder(receivingOrder.id);
       if (result.success) {
         toast.success(result.message);
       } else {
         toast.error(result.message);
       }
+    } catch {
+      toast.error("Error al procesar la recepción del pedido");
+    } finally {
+      setIsSubmitting(false);
+      setReceivingOrder(null);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Eliminar esta orden de compra?")) {
-      const result = await deleteSupplyOrder(id);
-      if (result.success) toast.success(result.message);
-      else toast.error(result.message);
+  const confirmDelete = async () => {
+    if (!deletingOrder) return;
+    setIsSubmitting(true);
+    try {
+      const result = await deleteSupplyOrder(deletingOrder.id);
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Error al eliminar la orden de compra");
+    } finally {
+      setIsSubmitting(false);
+      setDeletingOrder(null);
     }
   };
 
@@ -142,11 +166,11 @@ export function SupplyOrdersTable({ orders }: { orders: SupplyOrder[] }) {
                   </TableCell>
                   <TableCell>
                     {order.status === "RECEIVED" ? (
-                      <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 gap-1 text-[11px]">
+                      <Badge variant="success" className="gap-1 text-[11px]">
                         <CheckCircle2 className="h-3 w-3" /> Recibido
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-amber-200 gap-1 text-[11px]">
+                      <Badge variant="warning" className="gap-1 text-[11px]">
                         <Clock className="h-3 w-3" /> Pendiente
                       </Badge>
                     )}
@@ -157,8 +181,8 @@ export function SupplyOrdersTable({ orders }: { orders: SupplyOrder[] }) {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleReceive(order.id)}
-                          className="h-8 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200 gap-1"
+                          onClick={() => setReceivingOrder(order)}
+                          className="h-8 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200 gap-1 font-semibold"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" /> Recibir Stock
                         </Button>
@@ -167,7 +191,7 @@ export function SupplyOrdersTable({ orders }: { orders: SupplyOrder[] }) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(order.id)}
+                        onClick={() => setDeletingOrder(order)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -179,6 +203,82 @@ export function SupplyOrdersTable({ orders }: { orders: SupplyOrder[] }) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Confirmation Modal for Receiving Stock */}
+      <Dialog open={!!receivingOrder} onOpenChange={() => setReceivingOrder(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-600 font-bold text-lg">
+              <CheckCircle2 className="h-5 w-5" /> Confirmar Recepción de Stock
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-foreground">
+              ¿Confirmar la recepción del pedido de proveedor{" "}
+              <span className="font-bold text-foreground">"{receivingOrder?.providerName}"</span> por{" "}
+              <span className="font-bold text-emerald-600">
+                Bs {Number(receivingOrder?.totalCost || 0).toFixed(2)}
+              </span>?
+              <br />
+              <span className="block mt-2 text-xs text-muted-foreground">
+                Esta acción actualizará e incrementará automáticamente el stock disponible en el inventario para todos los insumos y fragancias incluidas.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-3">
+            <Button
+              variant="outline"
+              onClick={() => setReceivingOrder(null)}
+              disabled={isSubmitting}
+              className="rounded-xl"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmReceive}
+              disabled={isSubmitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl gap-1.5"
+            >
+              {isSubmitting ? "Procesando..." : "Confirmar & Cargar Stock"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Modal for Deleting Supply Order */}
+      <Dialog open={!!deletingOrder} onOpenChange={() => setDeletingOrder(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive font-bold text-lg">
+              <AlertTriangle className="h-5 w-5" /> Eliminar Orden de Compra
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-foreground">
+              ¿Estás seguro de eliminar la orden de compra de{" "}
+              <span className="font-bold">"{deletingOrder?.providerName}"</span>?
+              <br />
+              <span className="block mt-2 text-xs text-muted-foreground">
+                Esta acción eliminará el registro del historial de compras.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-3">
+            <Button
+              variant="outline"
+              onClick={() => setDeletingOrder(null)}
+              disabled={isSubmitting}
+              className="rounded-xl"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isSubmitting}
+              className="font-bold rounded-xl gap-1.5"
+            >
+              {isSubmitting ? "Eliminando..." : "Sí, Eliminar Orden"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

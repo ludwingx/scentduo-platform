@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { isDemoMode } from "@/lib/demo";
 
 interface CartItem {
   productId: string;
@@ -16,6 +17,11 @@ export async function processPosOrder(
 ) {
   if (cartItems.length === 0) {
     return { success: false, message: "El carrito está vacío" };
+  }
+
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Venta registrada correctamente (Modo Demo)" };
   }
 
   try {

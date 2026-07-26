@@ -51,11 +51,11 @@ export function CartSidebar() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex w-full flex-col sm:max-w-lg">
-        <SheetHeader>
+      <SheetContent className="flex w-full flex-col sm:max-w-lg h-full">
+        <SheetHeader className="shrink-0">
           <SheetTitle>Tu Carrito</SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto py-4">
+        <div className="flex-1 min-h-0 overflow-y-auto py-4">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center space-y-2">
               <ShoppingBag className="h-12 w-12 text-muted-foreground" />
@@ -143,7 +143,7 @@ export function CartSidebar() {
           )}
         </div>
         {items.length > 0 && (
-          <SheetFooter className="border-t pt-4">
+          <SheetFooter className="border-t pt-4 shrink-0">
             <div className="w-full space-y-4">
               <div className="flex items-center justify-between text-lg font-bold">
                 <span>Total</span>

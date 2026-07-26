@@ -129,7 +129,7 @@ export function ProfitabilityClient() {
   const getAbcBadge = (abc: ProfitabilityItem["abcClass"]) => {
     switch (abc) {
       case "A":
-        return <Badge className="bg-emerald-500/20 text-emerald-600 border-emerald-400 font-bold">Clase A (80% Ingresos)</Badge>;
+        return <Badge variant="success" className="font-bold">Clase A (80% Ingresos)</Badge>;
       case "B":
         return <Badge variant="secondary">Clase B (15%)</Badge>;
       case "C":
@@ -244,11 +244,11 @@ export function ProfitabilityClient() {
                     </TableCell>
                     <TableCell className="text-center">
                       {isSleeping ? (
-                        <Badge variant="outline" className="border-amber-400 text-amber-600 bg-amber-500/10 text-[10px] gap-1">
+                        <Badge variant="warning" className="text-[10px] gap-1">
                           <AlertTriangle className="h-3 w-3" /> Dinero Durmiendo ({item.daysWithoutSale}d)
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-emerald-600 bg-emerald-500/10 text-[10px]">
+                        <Badge variant="success" className="text-[10px]">
                           Rotación Activa
                         </Badge>
                       )}

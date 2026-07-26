@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { isDemoMode } from "@/lib/demo";
 
 const supplyOrderSchema = z.object({
   providerName: z.string().min(2, "El nombre del proveedor es requerido"),
@@ -18,6 +19,10 @@ const supplyOrderSchema = z.object({
 });
 
 export async function createSupplyOrder(data: any) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Orden de compra creada correctamente (Modo Demo)" };
+  }
   const validatedFields = supplyOrderSchema.safeParse(data);
 
   if (!validatedFields.success) {
@@ -63,6 +68,11 @@ export async function createSupplyOrder(data: any) {
 }
 
 export async function receiveSupplyOrder(orderId: string) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Orden recibida y stock actualizado (Modo Demo)" };
+  }
+
   try {
     const order = await prisma.supplyOrder.findUnique({
       where: { id: orderId },
@@ -116,6 +126,11 @@ export async function receiveSupplyOrder(orderId: string) {
 }
 
 export async function deleteSupplyOrder(orderId: string) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Orden eliminada (Modo Demo)" };
+  }
+
   try {
     await prisma.supplyOrder.delete({ where: { id: orderId } });
     revalidatePath("/panel-admin/compras");

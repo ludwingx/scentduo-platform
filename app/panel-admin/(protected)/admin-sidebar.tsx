@@ -321,6 +321,10 @@ export function AdminSidebar({
       <SidebarFooter className="space-y-2 p-3 border-t">
         <DemoModeToggle isDemoMode={isDemoMode} />
 
+        <div className="text-[10px] text-center text-sidebar-foreground/70 font-medium tracking-tight py-0.5 border-b border-sidebar-border/40 pb-1.5">
+          Desarrollado por <span className="font-bold text-sidebar-foreground">Ludwing A. Saavedra</span>
+        </div>
+
         <div className="flex items-center justify-between gap-2 px-1">
           <div className="text-xs text-sidebar-foreground/70 font-medium">Tema</div>
           <ThemeToggle />

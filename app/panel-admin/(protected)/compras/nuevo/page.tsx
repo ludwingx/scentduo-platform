@@ -1,18 +1,27 @@
 import { prisma } from "@/lib/prisma";
 import { SupplyOrderForm } from "./supply-order-form";
+import { isDemoMode, MOCK_PRODUCTS } from "@/lib/demo";
+
+async function getProductsForSupplyOrder() {
+  if (await isDemoMode()) return MOCK_PRODUCTS;
+
+  try {
+    return await prisma.product.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        hasDecant: true,
+        hasFullBottle: true,
+      },
+    });
+  } catch {
+    return MOCK_PRODUCTS;
+  }
+}
 
 export default async function NewSupplyOrderPage() {
-  const products = await prisma.product.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      // We might need to know which variants are valid, but for now we assume all can be ordered?
-      // Or maybe check hasDecant/hasFullBottle? Let's fetch those.
-      hasDecant: true,
-      hasFullBottle: true,
-    },
-  });
+  const products = await getProductsForSupplyOrder();
 
   return (
     <div className="space-y-6">

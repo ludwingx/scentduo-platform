@@ -5,17 +5,26 @@ import { getBrands } from "@/app/actions/brands";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
+import { isDemoMode, MOCK_PRODUCTS } from "@/lib/demo";
 
 async function getProduct(id: string) {
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      bottleVariants: {
-        orderBy: { sizeMl: "asc" },
+  if (await isDemoMode()) {
+    return MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0];
+  }
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        bottleVariants: {
+          orderBy: { sizeMl: "asc" },
+        },
       },
-    },
-  });
-  return product;
+    });
+    return product || MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0];
+  } catch {
+    return MOCK_PRODUCTS.find((p) => p.id === id) || MOCK_PRODUCTS[0];
+  }
 }
 
 export default async function EditProductPage({

@@ -12,12 +12,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { updatePaymentProofStatus, deletePaymentProof } from "@/app/actions/payment-proof";
 import { toast } from "sonner";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { CheckCircle2, XCircle, Trash2, Search, ExternalLink } from "lucide-react";
+import { CheckCircle2, XCircle, Trash2, Search, ExternalLink, AlertTriangle, Clock } from "lucide-react";
 
 interface PaymentProof {
   id: string;
@@ -32,6 +40,8 @@ interface PaymentProof {
 export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
+  const [deletingProof, setDeletingProof] = useState<PaymentProof | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleStatusChange = async (id: string, status: "APPROVED" | "REJECTED" | "PENDING") => {
     const res = await updatePaymentProofStatus(id, status);
@@ -42,14 +52,21 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Eliminar este comprobante de pago?")) {
-      const res = await deletePaymentProof(id);
+  const confirmDelete = async () => {
+    if (!deletingProof) return;
+    setIsDeleting(true);
+    try {
+      const res = await deletePaymentProof(deletingProof.id);
       if (res.success) {
         toast.success(res.message);
       } else {
         toast.error(res.message);
       }
+    } catch {
+      toast.error("Error al eliminar el comprobante");
+    } finally {
+      setIsDeleting(false);
+      setDeletingProof(null);
     }
   };
 
@@ -80,7 +97,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
             size="sm"
             variant={selectedStatus === "ALL" ? "default" : "outline"}
             onClick={() => setSelectedStatus("ALL")}
-            className="h-8 text-xs"
+            className="h-8 text-xs font-medium"
           >
             Todos ({proofs.length})
           </Button>
@@ -88,7 +105,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
             size="sm"
             variant={selectedStatus === "PENDING" ? "default" : "outline"}
             onClick={() => setSelectedStatus("PENDING")}
-            className="h-8 text-xs"
+            className="h-8 text-xs font-medium"
           >
             Pendientes ({proofs.filter((p) => p.status === "PENDING").length})
           </Button>
@@ -96,7 +113,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
             size="sm"
             variant={selectedStatus === "APPROVED" ? "default" : "outline"}
             onClick={() => setSelectedStatus("APPROVED")}
-            className="h-8 text-xs"
+            className="h-8 text-xs font-medium"
           >
             Aprobados ({proofs.filter((p) => p.status === "APPROVED").length})
           </Button>
@@ -104,7 +121,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
             size="sm"
             variant={selectedStatus === "REJECTED" ? "default" : "outline"}
             onClick={() => setSelectedStatus("REJECTED")}
-            className="h-8 text-xs"
+            className="h-8 text-xs font-medium"
           >
             Rechazados ({proofs.filter((p) => p.status === "REJECTED").length})
           </Button>
@@ -116,76 +133,74 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
         <Table>
           <TableHeader className="bg-muted/40">
             <TableRow>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Teléfono WhatsApp</TableHead>
               <TableHead>Comprobante</TableHead>
-              <TableHead>Comentario / Nota</TableHead>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Nota / Referencia</TableHead>
+              <TableHead>Fecha</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>Recibido</TableHead>
-              <TableHead className="text-right">Acciones de Verificación</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredProofs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                  No hay comprobantes que coincidan con los filtros.
+                <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                  {searchTerm ? "No se encontraron comprobantes coincidentes." : "No hay comprobantes de pago registrados."}
                 </TableCell>
               </TableRow>
             ) : (
               filteredProofs.map((proof) => (
                 <TableRow key={proof.id} className="hover:bg-muted/20 transition-colors">
-                  <TableCell className="font-semibold text-sm">
-                    {proof.customerName}
-                  </TableCell>
-                  <TableCell className="text-xs font-mono">
-                    {proof.customerPhone}
-                  </TableCell>
                   <TableCell>
                     <a
                       href={proof.imageUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative block w-14 h-14 rounded-lg overflow-hidden border hover:border-primary transition-colors bg-muted"
-                      title="Ver comprobante original"
+                      className="relative block h-14 w-14 rounded-lg overflow-hidden border bg-muted shrink-0 group hover:opacity-95 transition-opacity"
                     >
                       <Image
                         src={proof.imageUrl}
-                        alt="Comprobante"
+                        alt={`Comprobante ${proof.customerName}`}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform"
+                        className="object-cover"
+                        unoptimized
                       />
-                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
                         <ExternalLink className="h-4 w-4" />
                       </div>
                     </a>
                   </TableCell>
-                  <TableCell className="max-w-xs text-xs text-muted-foreground truncate">
-                    {proof.comment || "Sin nota adicional"}
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-sm">{proof.customerName}</span>
+                      <span className="text-xs text-muted-foreground">{proof.customerPhone}</span>
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        proof.status === "PENDING"
-                          ? "secondary"
-                          : proof.status === "APPROVED"
-                          ? "default"
-                          : "destructive"
-                      }
-                      className="text-[11px]"
-                    >
-                      {proof.status === "PENDING"
-                        ? "Pendiente"
-                        : proof.status === "APPROVED"
-                        ? "Aprobado"
-                        : "Rechazado"}
-                    </Badge>
+                    <span className="text-xs text-muted-foreground italic">
+                      {proof.comment || "Sin nota adicional"}
+                    </span>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(proof.createdAt), {
                       addSuffix: true,
                       locale: es,
                     })}
+                  </TableCell>
+                  <TableCell>
+                    {proof.status === "APPROVED" ? (
+                      <Badge variant="success" className="gap-1 text-[11px]">
+                        <CheckCircle2 className="h-3 w-3" /> Aprobado
+                      </Badge>
+                    ) : proof.status === "REJECTED" ? (
+                      <Badge variant="destructive" className="gap-1 text-[11px]">
+                        <XCircle className="h-3 w-3" /> Rechazado
+                      </Badge>
+                    ) : (
+                      <Badge variant="warning" className="gap-1 text-[11px]">
+                        <Clock className="h-3 w-3" /> Pendiente
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1.5">
@@ -194,7 +209,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
                           variant="outline"
                           size="sm"
                           onClick={() => handleStatusChange(proof.id, "APPROVED")}
-                          className="h-8 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200 gap-1"
+                          className="h-8 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200 gap-1 font-semibold dark:text-emerald-400 dark:hover:bg-emerald-950/40 dark:border-emerald-800"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" /> Aprobar
                         </Button>
@@ -204,7 +219,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
                           variant="outline"
                           size="sm"
                           onClick={() => handleStatusChange(proof.id, "REJECTED")}
-                          className="h-8 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 gap-1"
+                          className="h-8 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 gap-1 font-semibold dark:text-amber-400 dark:hover:bg-amber-950/40 dark:border-amber-800"
                         >
                           <XCircle className="h-3.5 w-3.5" /> Rechazar
                         </Button>
@@ -213,7 +228,7 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(proof.id)}
+                        onClick={() => setDeletingProof(proof)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -225,6 +240,43 @@ export function PaymentProofsClient({ proofs }: { proofs: PaymentProof[] }) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete Proof Confirmation Dialog */}
+      <Dialog open={!!deletingProof} onOpenChange={() => setDeletingProof(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive font-bold text-lg">
+              <AlertTriangle className="h-5 w-5" /> Eliminar Comprobante de Pago
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-foreground">
+              ¿Estás seguro de eliminar el comprobante de pago de{" "}
+              <span className="font-bold">"{deletingProof?.customerName}"</span>?
+              <br />
+              <span className="block mt-2 text-xs text-muted-foreground">
+                Esta acción removerá el comprobante del registro.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-3">
+            <Button
+              variant="outline"
+              onClick={() => setDeletingProof(null)}
+              disabled={isDeleting}
+              className="rounded-xl"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="font-bold rounded-xl gap-1.5"
+            >
+              {isDeleting ? "Eliminando..." : "Sí, Eliminar Comprobante"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

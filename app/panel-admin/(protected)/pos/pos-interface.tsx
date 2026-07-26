@@ -81,6 +81,9 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
   const [customerName, setCustomerName] = useState("");
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
+  // Modal for Variant Selection
+  const [selectedProductForVariants, setSelectedProductForVariants] = useState<PosProduct | null>(null);
+
   // Success Receipt Modal State
   const [completedSale, setCompletedSale] = useState<{
     items: CartItem[];
@@ -154,7 +157,6 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
           item.id === cartId ? { ...item, quantity: item.quantity + 1 } : item
         )
       );
-      toast.success(`+1 ${product.name} (${label})`);
     } else {
       setCart([
         ...cart,
@@ -168,7 +170,6 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
           price,
         },
       ]);
-      toast.success(`Añadido ${product.name} (${label})`);
     }
   };
 
@@ -337,95 +338,66 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
               )}
             </div>
           ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 pb-32 lg:pb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 pb-32 lg:pb-4">
               {filteredProducts.map((product) => (
                 <Card
                   key={product.id}
-                  className="overflow-hidden border shadow-xs hover:border-primary/40 transition-all flex flex-col group bg-card"
+                  onClick={() => setSelectedProductForVariants(product)}
+                  className="overflow-hidden border shadow-xs hover:border-primary/50 transition-all flex flex-col group bg-card cursor-pointer"
                 >
                   {/* Top Image & Badges */}
-                  <div className="relative h-24 sm:h-36 w-full bg-muted/40 overflow-hidden flex items-center justify-center">
+                  <div className="relative h-28 sm:h-40 w-full bg-muted/40 overflow-hidden flex items-center justify-center">
                     {product.images[0] ? (
                       <Image
                         src={product.images[0]}
                         alt={product.name}
                         fill
+                        unoptimized
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <Package className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground/30" />
                     )}
                     {product.brand && (
-                      <Badge className="absolute top-1.5 left-1.5 bg-background/90 dark:bg-card/90 text-foreground border shadow-xs text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5">
+                      <Badge className="absolute top-2 left-2 bg-background/90 dark:bg-card/90 text-foreground border shadow-xs text-[10px] sm:text-xs font-bold px-2 py-0.5">
                         {product.brand}
                       </Badge>
                     )}
                     {product.category && (
                       <Badge
                         variant="secondary"
-                        className="absolute bottom-1.5 right-1.5 text-[9px] sm:text-[10px] backdrop-blur-md bg-black/60 text-white font-medium px-1.5 py-0.5"
+                        className="absolute bottom-2 right-2 text-[10px] sm:text-xs backdrop-blur-md bg-black/60 text-white font-medium px-2 py-0.5"
                       >
                         {product.category}
                       </Badge>
                     )}
                   </div>
 
-                  {/* Card Info & Presentation Actions */}
-                  <CardContent className="p-2 sm:p-3 flex-1 flex flex-col justify-between space-y-2">
-                    <div>
-                      <h3 className="font-bold text-xs sm:text-sm line-clamp-1 leading-tight" title={product.name}>
-                        {product.name}
-                      </h3>
-                    </div>
+                  {/* Card Info & Availability Badges */}
+                  <CardContent className="p-3 flex-1 flex items-center justify-between gap-2">
+                    <h3
+                      className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-primary transition-colors flex-1"
+                      title={product.name}
+                    >
+                      {product.name}
+                    </h3>
 
-                    {/* Presentation Buttons */}
-                    <div className="space-y-1 pt-0.5">
-                      {/* Botella Completa (100ml) */}
+                    {/* Minimalist Icon-Only Availability Indicators */}
+                    <div className="flex items-center gap-1 shrink-0">
                       {product.hasFullBottle && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full h-7 sm:h-8 text-[10px] sm:text-xs justify-between px-1.5 font-medium border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-                          onClick={() => addToCart(product, "original")}
-                          disabled={product.stockFull <= 0}
+                        <div
+                          className="h-5 w-5 rounded-md flex items-center justify-center border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 shrink-0"
+                          title="Botella Completa 100ml"
                         >
-                          <span className="flex items-center gap-1 font-semibold truncate">
-                            <Package className="h-3 w-3 shrink-0 hidden sm:inline" /> Botella ({product.stockFull})
-                          </span>
-                          <span className="font-extrabold shrink-0">
-                            {product.stockFull > 0 ? `Bs ${product.priceFull}` : "Agotado"}
-                          </span>
-                        </Button>
+                          <Package className="h-3 w-3" />
+                        </div>
                       )}
-
-                      {/* Decants (5ml / 10ml) */}
                       {product.hasDecant && (
-                        <div className="grid grid-cols-2 gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 sm:h-8 text-[10px] justify-between px-1 font-medium border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
-                            onClick={() => addToCart(product, "decant-5ml")}
-                            disabled={product.stockDecant5ml <= 0}
-                          >
-                            <span className="font-semibold">5ml</span>
-                            <span className="font-extrabold">
-                              {product.stockDecant5ml > 0 ? `Bs ${product.priceDecant5ml}` : "0"}
-                            </span>
-                          </Button>
-
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 sm:h-8 text-[10px] justify-between px-1 font-medium border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/10"
-                            onClick={() => addToCart(product, "decant-10ml")}
-                            disabled={product.stockDecant10ml <= 0}
-                          >
-                            <span className="font-semibold">10ml</span>
-                            <span className="font-extrabold">
-                              {product.stockDecant10ml > 0 ? `Bs ${product.priceDecant10ml}` : "0"}
-                            </span>
-                          </Button>
+                        <div
+                          className="h-5 w-5 rounded-md flex items-center justify-center border border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10 shrink-0"
+                          title="Decants 5ml/10ml"
+                        >
+                          <Droplets className="h-3 w-3" />
                         </div>
                       )}
                     </div>
@@ -444,7 +416,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
                   <div className="flex items-center gap-3">
                     <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-muted shrink-0 border">
                       {product.images[0] ? (
-                        <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                        <Image src={product.images[0]} alt={product.name} fill unoptimized className="object-cover" />
                       ) : (
                         <Package className="h-5 w-5 m-auto text-muted-foreground/30" />
                       )}
@@ -503,7 +475,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
       {/* ─── RIGHT COLUMN: Order Ticket & Checkout (Desktop PC / Tablet) ───────────── */}
       <div className="hidden lg:flex w-96 border rounded-2xl bg-card shadow-sm flex-col h-full shrink-0 overflow-hidden">
         {/* Ticket Header */}
-        <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
+        <div className="p-4 border-b bg-muted/40 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2 font-bold text-sm">
             <Receipt className="h-4 w-4 text-primary" />
             <span>Ticket de Venta</span>
@@ -526,7 +498,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
         </div>
 
         {/* Customer Reference Input */}
-        <div className="p-3 border-b bg-muted/10 space-y-2">
+        <div className="p-3 border-b bg-muted/10 space-y-2 shrink-0">
           <div className="relative">
             <User className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
@@ -539,7 +511,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
         </div>
 
         {/* Cart Item List */}
-        <ScrollArea className="flex-1 p-3">
+        <ScrollArea className="flex-1 min-h-0 p-3">
           {cart.length === 0 ? (
             <div className="h-60 flex flex-col items-center justify-center text-center p-4 text-muted-foreground opacity-60">
               <ShoppingCart className="h-10 w-10 mb-2 stroke-1" />
@@ -600,7 +572,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
         </ScrollArea>
 
         {/* Payment Configuration & Totals */}
-        <div className="p-4 border-t bg-muted/30 space-y-3">
+        <div className="p-4 border-t bg-muted/30 space-y-3 shrink-0">
           {/* Payment Method Selector */}
           <div className="space-y-1.5">
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
@@ -730,7 +702,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
       {/* Mobile Cart Sheet Dialog */}
       <Dialog open={mobileCartOpen} onOpenChange={setMobileCartOpen}>
         <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col p-0 rounded-2xl overflow-hidden">
-          <DialogHeader className="p-4 border-b bg-muted/40">
+          <DialogHeader className="p-4 border-b bg-muted/40 shrink-0">
             <DialogTitle className="flex items-center justify-between text-base font-bold">
               <span className="flex items-center gap-2">
                 <Receipt className="h-5 w-5 text-primary" /> Ticket de Venta
@@ -741,7 +713,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
             </DialogTitle>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 min-h-0 p-4">
             <div className="space-y-3">
               {cart.map((item) => (
                 <div key={item.id} className="p-3 rounded-xl border bg-muted/20 space-y-2">
@@ -786,7 +758,7 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
             </div>
           </ScrollArea>
 
-          <div className="p-4 border-t bg-card space-y-3">
+          <div className="p-4 border-t bg-card space-y-3 shrink-0">
             {/* Payment Method Selector for Mobile */}
             <div className="space-y-1.5">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
@@ -912,6 +884,143 @@ export function PosInterface({ products }: { products: PosProduct[] }) {
               Nueva Venta
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── VARIANT SELECTOR MODAL DIALOG ─────────────────────────────────────────── */}
+      <Dialog
+        open={!!selectedProductForVariants}
+        onOpenChange={() => setSelectedProductForVariants(null)}
+      >
+        <DialogContent className="sm:max-w-md p-5 rounded-2xl space-y-4">
+          {selectedProductForVariants && (
+            <>
+              <DialogHeader className="p-0 text-left">
+                <div className="flex items-center gap-3">
+                  <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-muted border shrink-0">
+                    {selectedProductForVariants.images[0] ? (
+                      <Image
+                        src={selectedProductForVariants.images[0]}
+                        alt={selectedProductForVariants.name}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Package className="h-6 w-6 m-auto text-muted-foreground/40" />
+                    )}
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="text-[10px] font-bold">
+                      {selectedProductForVariants.brand || "Perfume"}
+                    </Badge>
+                    <DialogTitle className="text-base font-bold font-serif leading-tight mt-0.5">
+                      {selectedProductForVariants.name}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground">
+                      {selectedProductForVariants.category || "Selecciona la presentación a añadir"}
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-2 pt-2 border-t">
+                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Presentaciones Disponibles:
+                </span>
+
+                {/* Botella Completa (100ml) */}
+                {selectedProductForVariants.hasFullBottle && (
+                  <div className="p-3 rounded-xl border bg-emerald-500/5 border-emerald-500/20 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-9 w-9 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                        <Package className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h5 className="font-bold text-xs">Botella Sellada (100ml)</h5>
+                        <p className="text-[11px] text-muted-foreground">
+                          {selectedProductForVariants.stockFull > 0
+                            ? `Stock: ${selectedProductForVariants.stockFull} unidades`
+                            : "Agotado"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold h-9 text-xs rounded-xl gap-1 shrink-0"
+                      disabled={selectedProductForVariants.stockFull <= 0}
+                      onClick={() => {
+                        addToCart(selectedProductForVariants, "original");
+                        setSelectedProductForVariants(null);
+                      }}
+                    >
+                      + Bs {selectedProductForVariants.priceFull}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Decant 5ml */}
+                {selectedProductForVariants.hasDecant && (
+                  <div className="p-3 rounded-xl border bg-amber-500/5 border-amber-500/20 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-9 w-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                        <Droplets className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h5 className="font-bold text-xs">Decant Fraccionado 5ml</h5>
+                        <p className="text-[11px] text-muted-foreground">
+                          {selectedProductForVariants.stockDecant5ml > 0
+                            ? `Stock: ${selectedProductForVariants.stockDecant5ml} u.`
+                            : "Sin Stock"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-amber-600 hover:bg-amber-700 text-white font-extrabold h-9 text-xs rounded-xl gap-1 shrink-0"
+                      disabled={selectedProductForVariants.stockDecant5ml <= 0}
+                      onClick={() => {
+                        addToCart(selectedProductForVariants, "decant-5ml");
+                        setSelectedProductForVariants(null);
+                      }}
+                    >
+                      + Bs {selectedProductForVariants.priceDecant5ml}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Decant 10ml */}
+                {selectedProductForVariants.hasDecant && (
+                  <div className="p-3 rounded-xl border bg-purple-500/5 border-purple-500/20 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-9 w-9 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                        <Droplets className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h5 className="font-bold text-xs">Decant Fraccionado 10ml</h5>
+                        <p className="text-[11px] text-muted-foreground">
+                          {selectedProductForVariants.stockDecant10ml > 0
+                            ? `Stock: ${selectedProductForVariants.stockDecant10ml} u.`
+                            : "Sin Stock"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold h-9 text-xs rounded-xl gap-1 shrink-0"
+                      disabled={selectedProductForVariants.stockDecant10ml <= 0}
+                      onClick={() => {
+                        addToCart(selectedProductForVariants, "decant-10ml");
+                        setSelectedProductForVariants(null);
+                      }}
+                    >
+                      + Bs {selectedProductForVariants.priceDecant10ml}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

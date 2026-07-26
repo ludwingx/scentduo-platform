@@ -18,6 +18,7 @@ import { isDemoMode } from "@/lib/demo";
 
 export default async function ConfiguracionPage() {
   const isDemo = await isDemoMode();
+  const getLinkPath = (path: string) => (isDemo ? `/demo${path}` : path);
 
   if (!isDemo) {
     const session = await auth();
@@ -56,7 +57,7 @@ export default async function ConfiguracionPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <Link href="/panel-admin/configuracion/marcas">
+            <Link href={getLinkPath("/panel-admin/configuracion/marcas")}>
               <Button className="w-full justify-between group" variant="outline">
                 <span>Gestionar Marcas</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -72,7 +73,7 @@ export default async function ConfiguracionPage() {
               <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600">
                 <Bot className="h-6 w-6" />
               </div>
-              <Badge className="bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border-purple-200 text-xs gap-1">
+              <Badge variant="purple" className="text-xs gap-1">
                 <Zap className="h-3 w-3" /> API Backend Live
               </Badge>
             </div>
@@ -82,7 +83,7 @@ export default async function ConfiguracionPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <Link href="/panel-admin/configuracion/chatbot">
+            <Link href={getLinkPath("/panel-admin/configuracion/chatbot")}>
               <Button className="w-full justify-between group bg-primary text-primary-foreground shadow">
                 <span className="flex items-center gap-2">
                   <Code2 className="h-4 w-4" /> Conectar App Externa de Chatbots
@@ -108,7 +109,7 @@ export default async function ConfiguracionPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <Link href="/panel-admin/configuracion/tienda">
+            <Link href={getLinkPath("/panel-admin/configuracion/tienda")}>
               <Button className="w-full justify-between group" variant="outline">
                 <span>Ajustar Parámetros</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -134,7 +135,7 @@ export default async function ConfiguracionPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <Link href="/panel-admin/configuracion/perfil">
+            <Link href={getLinkPath("/panel-admin/configuracion/perfil")}>
               <Button className="w-full justify-between group" variant="outline">
                 <span>Mi Perfil & Seguridad</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />

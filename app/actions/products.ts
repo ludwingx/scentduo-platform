@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { isDemoMode } from "@/lib/demo";
 
 function parseBottleVariants(input: unknown) {
   if (!input || typeof input !== "string") return [];
@@ -82,6 +83,11 @@ const productSchema = z.object({
 });
 
 export async function createProduct(formData: FormData) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    redirect("/demo/panel-admin/productos");
+  }
+
   const rawData = {
     name: formData.get("name"),
     description: formData.get("description"),
@@ -213,6 +219,11 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(id: string, formData: FormData) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    redirect("/demo/panel-admin/productos");
+  }
+
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -396,6 +407,11 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function deleteProduct(id: string) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Producto eliminado correctamente (Modo Demo)" };
+  }
+
   try {
     await prisma.product.delete({
       where: { id },

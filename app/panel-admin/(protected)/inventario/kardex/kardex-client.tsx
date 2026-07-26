@@ -130,13 +130,13 @@ export function KardexClient() {
   const getTypeBadge = (type: KardexMovement["type"]) => {
     switch (type) {
       case "COMPRA":
-        return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300 gap-1"><ArrowDownLeft className="h-3 w-3" /> Entrada Compra</Badge>;
+        return <Badge variant="success" className="gap-1"><ArrowDownLeft className="h-3 w-3" /> Entrada Compra</Badge>;
       case "VENTA_POS":
-        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-300 gap-1"><ArrowUpRight className="h-3 w-3" /> Venta POS</Badge>;
+        return <Badge variant="info" className="gap-1"><ArrowUpRight className="h-3 w-3" /> Venta POS</Badge>;
       case "FRACCIONAMIENTO":
-        return <Badge className="bg-purple-500/10 text-purple-600 border-purple-300 gap-1"><Layers className="h-3 w-3" /> Fraccionamiento</Badge>;
+        return <Badge variant="purple" className="gap-1"><Layers className="h-3 w-3" /> Fraccionamiento</Badge>;
       case "MERMA":
-        return <Badge className="bg-amber-500/10 text-amber-600 border-amber-300 gap-1">Merma Trasvase</Badge>;
+        return <Badge variant="warning" className="gap-1">Merma Trasvase</Badge>;
       case "AJUSTE":
         return <Badge variant="outline">Ajuste Conteo</Badge>;
     }

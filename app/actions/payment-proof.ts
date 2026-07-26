@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { isDemoMode } from "@/lib/demo";
 
 const paymentProofSchema = z.object({
   customerName: z.string().min(2, "El nombre es requerido"),
@@ -12,6 +13,11 @@ const paymentProofSchema = z.object({
 });
 
 export async function submitPaymentProof(formData: FormData) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Comprobante enviado correctamente (Modo Demo)" };
+  }
+
   const rawData = {
     customerName: formData.get("customerName"),
     customerPhone: formData.get("customerPhone"),
@@ -47,6 +53,11 @@ export async function submitPaymentProof(formData: FormData) {
 }
 
 export async function updatePaymentProofStatus(id: string, status: "APPROVED" | "REJECTED" | "PENDING") {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: `Estado actualizado a ${status === "APPROVED" ? "Aprobado" : status === "REJECTED" ? "Rechazado" : "Pendiente"} (Modo Demo)` };
+  }
+
   try {
     await prisma.paymentProof.update({
       where: { id },
@@ -62,6 +73,11 @@ export async function updatePaymentProofStatus(id: string, status: "APPROVED" | 
 }
 
 export async function deletePaymentProof(id: string) {
+  const isDemo = await isDemoMode();
+  if (isDemo) {
+    return { success: true, message: "Comprobante eliminado correctamente (Modo Demo)" };
+  }
+
   try {
     await prisma.paymentProof.delete({
       where: { id },

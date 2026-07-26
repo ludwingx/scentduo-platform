@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -45,11 +46,18 @@ export function NavUser({
   signOutAction?: (() => void) | undefined;
 }) {
   const { isMobile } = useSidebar();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const pathname = usePathname();
   const isDemoMode = pathname?.startsWith("/demo") || user.email === "demo@essenceos.app";
 
-  const initials = (user.name || user.email || "U")
   const getLinkPath = (path: string) => (isDemoMode ? `/demo${path}` : path);
+
+  const menuSide = mounted && isMobile ? "bottom" : "right";
 
   return (
     <SidebarMenu>
@@ -58,6 +66,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
+              suppressHydrationWarning
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
@@ -74,7 +83,7 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={menuSide}
             align="end"
             sideOffset={4}
           >

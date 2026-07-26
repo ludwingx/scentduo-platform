@@ -209,7 +209,7 @@ export function InventoryClient({ products }: { products: ProductInventory[] }) 
                           <AlertTriangle className="h-3 w-3" /> Agotado
                         </Badge>
                       ) : (
-                        <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 gap-1">
+                        <Badge variant="success" className="gap-1">
                           <CheckCircle2 className="h-3 w-3" /> Disponible
                         </Badge>
                       )}

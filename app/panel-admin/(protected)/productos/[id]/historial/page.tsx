@@ -12,18 +12,36 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { isDemoMode, MOCK_PRODUCTS } from "@/lib/demo";
 
 async function getProductHistory(productId: string) {
-  const history = await prisma.productPriceHistory.findMany({
-    where: { productId },
-    include: {
-      changedBy: {
-        select: { name: true, username: true },
+  if (await isDemoMode()) {
+    return [
+      {
+        id: "hist-1",
+        priceType: "FULL",
+        oldPrice: "850",
+        newPrice: "890",
+        createdAt: new Date("2026-07-20"),
+        changedBy: { name: "Admin ERP", username: "admin" },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  return history;
+    ];
+  }
+
+  try {
+    const history = await prisma.productPriceHistory.findMany({
+      where: { productId },
+      include: {
+        changedBy: {
+          select: { name: true, username: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return history;
+  } catch {
+    return [];
+  }
 }
 
 export default async function ProductHistoryPage({
@@ -33,10 +51,23 @@ export default async function ProductHistoryPage({
 }) {
   const { id } = await params;
   const history = await getProductHistory(id);
-  const product = await prisma.product.findUnique({
-    where: { id },
-    select: { name: true },
-  });
+  const isDemo = await isDemoMode();
+  let productName = "Desconocido";
+
+  if (isDemo) {
+    const p = MOCK_PRODUCTS.find((item) => item.id === id);
+    productName = p ? p.name : MOCK_PRODUCTS[0].name;
+  } else {
+    try {
+      const product = await prisma.product.findUnique({
+        where: { id },
+        select: { name: true },
+      });
+      productName = product?.name || MOCK_PRODUCTS[0].name;
+    } catch {
+      productName = MOCK_PRODUCTS[0].name;
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -51,7 +82,7 @@ export default async function ProductHistoryPage({
             Historial de Precios
           </h1>
           <p className="text-muted-foreground">
-            Producto: {product?.name || "Desconocido"}
+            Producto: {productName}
           </p>
         </div>
       </div>
