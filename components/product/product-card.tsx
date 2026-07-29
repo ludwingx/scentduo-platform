@@ -74,31 +74,22 @@ export function ProductCard({ product }: ProductCardProps) {
   const hasAnyStock = hasAnyDecant || hasFullBottle;
 
   return (
-    <Card className="overflow-hidden border-border bg-card hover:border-gold/30 transition-all duration-300 group relative">
+    <Card className="overflow-hidden border-border/70 bg-card/90 hover:border-gold/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-500 group relative backdrop-blur-sm rounded-2xl">
       <CardHeader className="p-0">
-        <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-muted/50 to-muted">
+        <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-br from-muted/30 to-muted/80">
           <Image
             src={product.images[0]}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           {!hasAnyStock && (
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center">
-              <Badge variant="destructive" className="text-sm font-bold">
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center">
+              <Badge variant="destructive" className="text-sm font-bold bg-amber-500/20 text-gold border border-gold/40">
                 Agotado
               </Badge>
             </div>
           )}
-          {/* Category Badge - Removed */}
-          {/* <div className="absolute top-2 left-2">
-            <Badge
-              variant="secondary"
-              className="text-xs font-medium bg-black/60 text-white border-0"
-            >
-              {product.category}
-            </Badge>
-          </div> */}
         </div>
       </CardHeader>
 
@@ -126,10 +117,10 @@ export function ProductCard({ product }: ProductCardProps) {
                   <button
                     onClick={() => setSelectedDecantSize("5ml")}
                     className={cn(
-                      "flex-1 px-2 py-1.5 rounded-lg border text-xs font-medium transition-all",
+                      "flex-1 px-2 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer",
                       selectedDecantSize === "5ml"
-                        ? "border-gold bg-gold/10 text-gold"
-                        : "border-border hover:border-gold/50"
+                        ? "border-gold bg-amber-500/15 text-gold font-bold shadow-sm"
+                        : "border-border/60 hover:border-gold/40 text-muted-foreground"
                     )}
                   >
                     <div>5ml</div>
@@ -142,10 +133,10 @@ export function ProductCard({ product }: ProductCardProps) {
                   <button
                     onClick={() => setSelectedDecantSize("10ml")}
                     className={cn(
-                      "flex-1 px-2 py-1.5 rounded-lg border text-xs font-medium transition-all",
+                      "flex-1 px-2 py-1.5 rounded-lg border text-xs font-medium transition-all cursor-pointer",
                       selectedDecantSize === "10ml"
-                        ? "border-gold bg-gold/10 text-gold"
-                        : "border-border hover:border-gold/50"
+                        ? "border-gold bg-amber-500/15 text-gold font-bold shadow-sm"
+                        : "border-border/60 hover:border-gold/40 text-muted-foreground"
                     )}
                   >
                     <div>10ml</div>
@@ -164,8 +155,8 @@ export function ProductCard({ product }: ProductCardProps) {
                 <Sparkles className="h-3.5 w-3.5 text-gold" />
                 <span className="font-medium">Perfume Original</span>
               </div>
-              <div className="flex items-center justify-between px-2 py-1.5 rounded-lg border border-gold/30 bg-gold/5">
-                <span className="text-xs">
+              <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-gold/30 bg-amber-500/10">
+                <span className="text-xs font-medium">
                   {product.fullBottleSize || "Full"}
                 </span>
                 <span className="text-gold font-bold text-sm">
@@ -188,7 +179,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <Button
             size="sm"
             variant="outline"
-            className="flex-1 border-gold/50 hover:bg-gold/10 hover:text-gold transition-all"
+            className="flex-1 border-gold/40 hover:bg-amber-500/10 hover:text-gold hover:border-gold transition-all cursor-pointer"
             onClick={() =>
               handleAddToCart(
                 selectedDecantSize === "5ml" ? "decant-5ml" : "decant-10ml"
@@ -203,7 +194,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {hasFullBottle && (
           <Button
             size="sm"
-            className="flex-1 bg-gold text-black hover:bg-gold/90 font-bold transition-all"
+            className="flex-1 bg-gradient-to-r from-amber-400 to-yellow-600 text-black hover:brightness-110 font-bold transition-all shadow-md shadow-amber-500/15 cursor-pointer"
             onClick={() => handleAddToCart("original")}
           >
             <Sparkles className="mr-1.5 h-3.5 w-3.5" />
@@ -212,7 +203,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {!hasAnyStock && (
-          <Button size="sm" variant="outline" className="flex-1" disabled>
+          <Button size="sm" variant="outline" className="flex-1 opacity-50" disabled>
             Sin Stock
           </Button>
         )}

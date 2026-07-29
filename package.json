@@ -1,13 +1,12 @@
 {
-  "name": "scent-duo",
+  "name": "essence-os",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "preinstall": "node preinstall.js"
+    "lint": "eslint"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -38,6 +37,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-hook-form": "^7.67.0",
+    "recharts": "^3.10.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "uploadthing": "^7.7.4",

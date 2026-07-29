@@ -3,11 +3,11 @@ import { Input } from "@/components/ui/input";
 
 export default function NewsletterSection() {
   return (
-    <section className="py-20 bg-gradient-to-b from-transparent to-muted/30">
+    <section className="py-20 bg-gradient-to-b from-transparent via-amber-500/5 to-card/40 border-t border-gold/15">
       <div className="container mx-auto px-4 text-center">
         <div className="max-w-2xl mx-auto space-y-6">
-          <h2 className="text-3xl font-serif font-bold tracking-tight">
-            Únete al Club EssenceOS
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold tracking-tight">
+            Únete al Club <span className="text-gold">EssenceOS</span>
           </h2>
           <p className="text-muted-foreground text-lg">
             Suscríbete para recibir ofertas exclusivas, lanzamientos anticipados
@@ -17,9 +17,9 @@ export default function NewsletterSection() {
             <Input
               type="email"
               placeholder="tu@email.com"
-              className="bg-background h-12"
+              className="bg-card/80 border-gold/20 focus-visible:border-gold h-12 rounded-xl text-foreground"
             />
-            <Button size="lg" className="h-12 px-8">
+            <Button size="lg" className="h-12 px-8 bg-gradient-to-r from-amber-400 to-yellow-600 text-black hover:brightness-110 font-bold rounded-xl shadow-md shadow-amber-500/15 cursor-pointer">
               Suscribirse
             </Button>
           </form>

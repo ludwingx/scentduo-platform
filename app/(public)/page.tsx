@@ -124,7 +124,7 @@ export default function HomePage() {
               <Link href="/catalogo">
                 <Button
                   size="default"
-                  className="w-full sm:w-auto px-8 py-7 rounded-full bg-gold text-black hover:opacity-90 font-bold text-lg shadow-xl hover:shadow-gold/20 transition-all"
+                  className="w-full sm:w-auto px-8 py-7 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-600 text-black hover:brightness-110 font-bold text-lg shadow-xl shadow-amber-500/20 transition-all cursor-pointer"
                 >
                   Explorar Catálogo
                 </Button>
@@ -149,10 +149,10 @@ export default function HomePage() {
               </div>
 
               {/* Product Info - Posicionado A LA IZQUIERDA Y ARRIBA UN POCO */}
-              <div className="absolute bottom-4 left-0 w-[62%] sm:w-[60%] lg:w-[55%] flex flex-col items-start space-y-2 p-3 rounded-xl bg-card/90 border border-border/60 backdrop-blur-md shadow-2xl shadow-gold/10">
+              <div className="absolute bottom-4 left-0 w-[62%] sm:w-[60%] lg:w-[55%] flex flex-col items-start space-y-2 p-3 rounded-xl bg-card/95 border border-gold/30 backdrop-blur-md shadow-2xl shadow-amber-500/10">
                 {/* Badge & Name */}
                 <div className="text-left">
-                  <span className="bg-gold text-black text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded block mb-1">
+                  <span className="bg-gold/20 text-gold border border-gold/30 text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded block mb-1">
                     {FEATURED_HERO_PRODUCT.badge}
                   </span>
                   <h3 className="text-xl sm:text-2xl font-serif font-bold text-foreground line-clamp-1">
@@ -175,15 +175,15 @@ export default function HomePage() {
                   href={`/producto/${FEATURED_HERO_PRODUCT.id}`}
                   className="w-full mt-2"
                 >
-                  <Button className="w-full cursor-pointer hover:opacity-90 py-2 sm:py-3 rounded-full bg-gold text-black hover:bg-gold/90 font-bold flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg">
+                  <Button className="w-full cursor-pointer hover:brightness-110 py-2 sm:py-3 rounded-full bg-gradient-to-r from-amber-400 to-yellow-600 text-black font-bold flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg shadow-amber-500/20">
                     <ShoppingCart className="h-4 w-4" />
                     Comprar Ahora
                   </Button>
                 </Link>
               </div>
 
-              {/* Discount Badge - Se mantiene arriba a la derecha */}
-              <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg z-10">
+              {/* Discount Badge */}
+              <div className="absolute top-2 right-2 bg-amber-500/20 text-gold border border-gold/40 backdrop-blur-md px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg z-10">
                 <Sparkles className="h-3 w-3" />
                 {FEATURED_HERO_PRODUCT.discount}% OFF
               </div>

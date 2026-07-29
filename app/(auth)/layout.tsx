@@ -21,8 +21,8 @@ export default function AuthLayout({
       {/* Logo */}
       <div className="mb-8 z-10">
         <Link href="/" className="flex items-center gap-3">
-          <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center border border-gold">
-            <Image src="/logo/logo.png" alt="EssenceOS" width={48} height={48} />
+          <div className="h-12 w-12 bg-amber-500/10 rounded-full flex items-center justify-center border border-gold/40 p-1.5 shadow-inner">
+            <Image src="/logo/EssenceOSlogo.png" alt="EssenceOS" width={42} height={42} className="object-contain" />
           </div>
           <span className="text-3xl font-serif font-bold text-foreground tracking-tighter">
             ESSENCE <span className="text-gold">OS</span>

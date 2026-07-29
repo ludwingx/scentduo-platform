@@ -40,19 +40,19 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-40 transition-colors duration-500 py-4",
+        "fixed top-0 left-0 right-0 z-40 transition-all duration-500 py-4 backdrop-blur-sm",
         isScrolled
-          ? "bg-background/95 border-b border-border/60 shadow-lg"
+          ? "bg-background/85 border-b border-gold/15 shadow-xl shadow-amber-500/5 backdrop-blur-md"
           : "bg-transparent border-transparent"
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center border border-gold">
-            <Image src="/logo/logo.png" alt="Logo" width={40} height={40} />
+          <div className="h-10 w-10 bg-amber-500/10 rounded-full flex items-center justify-center border border-gold/40 shadow-inner overflow-hidden p-1">
+            <Image src="/logo/EssenceOSlogo.png" alt="EssenceOS" width={36} height={36} className="object-contain" />
           </div>
-          <span className="text-2xl font-serif font-bold tracking-tighter text-foreground group-hover:text-primary transition-colors">
+          <span className="text-2xl font-serif font-bold tracking-tight text-foreground group-hover:text-gold transition-colors">
             ESSENCE{" "}
             <span className="text-gold group-hover:text-foreground transition-colors">
               OS
@@ -66,7 +66,7 @@ export function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors uppercase tracking-wide"
+              className="text-xs font-semibold text-muted-foreground hover:text-gold transition-colors uppercase tracking-widest"
             >
               {link.name}
             </Link>

@@ -27,19 +27,19 @@ export default function BenefitsSection() {
   return (
     <section
       id="benefits"
-      className="py-16 bg-muted/30 border-y border-border/50"
+      className="py-16 bg-card/30 backdrop-blur-sm border-y border-gold/15"
     >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {BENEFITS.map((benefit, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center space-y-4 p-6 rounded-lg hover:bg-background hover:shadow-sm transition-all duration-300"
+              className="flex flex-col items-center text-center space-y-4 p-6 rounded-2xl border border-transparent hover:border-gold/30 hover:bg-card/80 hover:shadow-xl hover:shadow-amber-500/5 transition-all duration-300"
             >
-              <div className="p-3 rounded-full bg-primary/10 text-primary">
-                <benefit.icon className="h-8 w-8" />
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 text-gold border border-gold/20 shadow-inner">
+                <benefit.icon className="h-7 w-7" />
               </div>
-              <h3 className="font-serif font-bold text-lg">{benefit.title}</h3>
+              <h3 className="font-serif font-bold text-lg text-foreground">{benefit.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {benefit.description}
               </p>

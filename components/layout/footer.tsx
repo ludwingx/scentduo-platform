@@ -9,8 +9,8 @@ export function Footer() {
           {/* Brand & Logo */}
           <div className="flex flex-col items-center md:items-start gap-4">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center border border-gold">
-                <Image src="/logo/logo.png" alt="Logo" width={40} height={40} />
+              <div className="h-10 w-10 bg-amber-500/10 rounded-full flex items-center justify-center border border-gold/40 p-1">
+                <Image src="/logo/EssenceOSlogo.png" alt="EssenceOS" width={36} height={36} className="object-contain" />
               </div>
               <span className="text-2xl font-serif font-bold tracking-tighter text-foreground group-hover:text-primary transition-colors">
                 ESSENCE{" "}

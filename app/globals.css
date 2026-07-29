@@ -12,35 +12,35 @@
 /* --- VARIABLES ROOT (Modo Claro) --- */
 /* ------------------------------------------- */
 :root {
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.982 0.008 45);
+  --foreground: oklch(0.18 0.02 45);
 
-  --card: oklch(0.99 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card: oklch(0.99 0.005 45);
+  --card-foreground: oklch(0.18 0.02 45);
 
-  --popover: oklch(0.99 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --popover: oklch(0.99 0.005 45);
+  --popover-foreground: oklch(0.18 0.02 45);
 
-  --primary: oklch(0.72 0.14 75); /* Oro cálido del logo */
-  --primary-foreground: oklch(0.1 0 0);
+  --primary: oklch(0.72 0.11 38); /* Rose Gold del Logo (#D49B8E) */
+  --primary-foreground: oklch(0.12 0.02 45);
 
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.95 0.01 45);
+  --secondary-foreground: oklch(0.25 0.02 45);
 
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.55 0 0);
+  --muted: oklch(0.94 0.01 45);
+  --muted-foreground: oklch(0.48 0.02 45);
 
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --accent: oklch(0.94 0.015 45);
+  --accent-foreground: oklch(0.20 0.02 45);
 
   --destructive: oklch(0.5 0.2 25);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.9 0 0);
-  --ring: oklch(0.72 0.14 75); /* Anillo del color del logo */
+  --border: oklch(0.90 0.01 45);
+  --input: oklch(0.90 0.01 45);
+  --ring: oklch(0.72 0.11 38);
 
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
   --sidebar: var(--card);
   --sidebar-foreground: var(--foreground);
@@ -56,42 +56,42 @@
 /* --- VARIABLES DARK (Modo Oscuro) --- */
 /* ------------------------------------------- */
 .dark {
-  --background: oklch(0.16 0 0);
-  --foreground: oklch(0.97 0 0);
+  --background: oklch(0.07 0.004 45); /* Deep Luxury Obsidian Black (#0A0908) */
+  --foreground: oklch(0.96 0.005 45);
 
-  --card: oklch(0.2 0 0);
-  --card-foreground: oklch(0.97 0 0);
+  --card: oklch(0.12 0.008 45); /* Rich Dark Surface (#141312) */
+  --card-foreground: oklch(0.96 0.005 45);
 
-  --popover: oklch(0.2 0 0);
-  --popover-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.12 0.008 45);
+  --popover-foreground: oklch(0.96 0.005 45);
 
-  --primary: oklch(0.68 0.12 75); /* Un poco más oscuro para modo oscuro */
-  --primary-foreground: oklch(0.1 0 0);
+  --primary: oklch(0.74 0.11 38); /* Luminous Rose Gold (#D49B8E) */
+  --primary-foreground: oklch(0.08 0.005 45);
 
-  --secondary: oklch(0.24 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
+  --secondary: oklch(0.16 0.008 45);
+  --secondary-foreground: oklch(0.96 0.005 45);
 
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.72 0 0);
+  --muted: oklch(0.15 0.008 45);
+  --muted-foreground: oklch(0.65 0.01 45);
 
-  --accent: oklch(0.24 0 0);
-  --accent-foreground: oklch(0.97 0 0);
+  --accent: oklch(0.18 0.01 45);
+  --accent-foreground: oklch(0.96 0.005 45);
 
   --destructive: oklch(0.5 0.2 25);
   --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.28 0 0);
-  --ring: oklch(0.68 0.12 75);
+  --border: oklch(0.20 0.01 45);
+  --input: oklch(0.20 0.01 45);
+  --ring: oklch(0.74 0.11 38);
 
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
   --sidebar: var(--card);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 }
@@ -142,36 +142,34 @@ body {
 }
 
 /* ------------------------------------------- */
-/* --- CLASES DE UTILIDAD PARA EL ORO --- */
+/* --- CLASES DE UTILIDAD PARA ROSE GOLD (#D49B8E) --- */
 /* ------------------------------------------- */
 
-/* Color dorado principal (#D4AF37) */
 .hover\:bg-gold:hover, .button-google:hover {
-  background-color: #d4af37 !important;
+  background-color: #d49b8e !important;
   color: #111 !important;
   transition: background 0.2s, color 0.2s;
 }
 .text-gold {
-  color: #d4af37;
+  color: #d49b8e;
 }
 
 .bg-gold {
-  background-color: #d4af37;
-  color: oklch(0.1 0 0);
+  background-color: #d49b8e;
+  color: #0f0e0d;
 }
 
 .border-gold {
-  border-color: #d4af37;
+  border-color: #d49b8e;
 }
 
-/* Gradiente metálico del logo (Claro, Base, Oscuro) */
+/* Gradiente metálico del logo Rose Gold (Claro, Base, Oscuro) */
 .text-gold-gradient {
   background: linear-gradient(
     135deg,
-    #e6c158 0%,
-    /* Tono claro */ #d4af37 50%,
-    /* Tono principal */ #a67c00 100%
-      /* Tono oscuro/Sombra - ¡Ajustado a un oro más oscuro! */
+    #e5b5a9 0%,
+    #d49b8e 50%,
+    #b87b6e 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -179,22 +177,21 @@ body {
 }
 
 .bg-gold-gradient {
-  background: linear-gradient(135deg, #e6c158 0%, #d4af37 50%, #a67c00 100%);
-  color: oklch(0.1 0 0);
+  background: linear-gradient(135deg, #e5b5a9 0%, #d49b8e 50%, #b87b6e 100%);
+  color: #0f0e0d;
 }
 
-/* Versiones más sutiles */
 .text-gold-subtle {
-  color: #c9a227;
+  color: #c48b7e;
 }
 
 .bg-gold-subtle {
-  background-color: #c9a227;
-  color: oklch(0.1 0 0);
+  background-color: #c48b7e;
+  color: #0f0e0d;
 }
 
 .border-gold-subtle {
-  border-color: #c9a227;
+  border-color: #c48b7e;
 }
 
 /* Versiones para acentos más claros */

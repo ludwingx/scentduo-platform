@@ -57,7 +57,7 @@ export default function StorySection() {
               <Link href="/catalogo">
                 <Button
                   size="lg"
-                  className="bg-gold text-black hover:opacity-90 rounded-full px-8 font-bold"
+                  className="bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-600 text-black hover:brightness-110 shadow-lg shadow-amber-500/20 rounded-full px-8 font-bold cursor-pointer transition-all"
                 >
                   Explorar Colección
                 </Button>
