@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -293,7 +294,7 @@ export async function updateProduct(id: string, formData: FormData) {
       ? parseFloat(validatedFields.data.priceDecant10ml)
       : null;
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Log Price Changes
       if (Number(currentProduct.priceFull) !== Number(newPriceFull)) {
         await tx.productPriceHistory.create({

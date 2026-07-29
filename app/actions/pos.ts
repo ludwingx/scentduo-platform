@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { isDemoMode } from "@/lib/demo";
 
@@ -28,7 +29,7 @@ export async function processPosOrder(
     // Generate simple Order Number (e.g., POS-Timestamp)
     const orderNumber = `POS-${Date.now()}`;
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Create Order
       const order = await tx.order.create({
         data: {

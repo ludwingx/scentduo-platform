@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -84,7 +85,7 @@ export async function receiveSupplyOrder(orderId: string) {
       return { success: false, message: "La orden ya fue recibida" };
 
     // Transaction to update order status and update stock for each item
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Update Order Status
       await tx.supplyOrder.update({
         where: { id: orderId },
