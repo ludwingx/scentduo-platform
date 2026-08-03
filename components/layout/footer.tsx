@@ -48,7 +48,15 @@ export function Footer() {
 
           {/* Copyright */}
           <div className="text-sm text-muted-foreground">
-            © 2026 EssenceOS. Todos los derechos reservados.
+            © 2026 Essence One. Desarrollado por{" "}
+            <a
+              href="https://ludwingdev.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold hover:text-primary transition-colors font-medium"
+            >
+              LudwingDev
+            </a>
           </div>
         </div>
       </div>

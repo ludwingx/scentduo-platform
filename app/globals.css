@@ -21,7 +21,7 @@
   --popover: oklch(0.99 0.005 45);
   --popover-foreground: oklch(0.18 0.02 45);
 
-  --primary: oklch(0.72 0.11 38); /* Rose Gold del Logo (#D49B8E) */
+  --primary: oklch(0.70 0.14 75); /* Gold Dorado (#C49A2A) */
   --primary-foreground: oklch(0.12 0.02 45);
 
   --secondary: oklch(0.95 0.01 45);
@@ -38,7 +38,7 @@
 
   --border: oklch(0.90 0.01 45);
   --input: oklch(0.90 0.01 45);
-  --ring: oklch(0.72 0.11 38);
+  --ring: oklch(0.70 0.14 75);
 
   --radius: 0.75rem;
 
@@ -65,7 +65,7 @@
   --popover: oklch(0.12 0.008 45);
   --popover-foreground: oklch(0.96 0.005 45);
 
-  --primary: oklch(0.74 0.11 38); /* Luminous Rose Gold (#D49B8E) */
+  --primary: oklch(0.74 0.14 75); /* Luminous Gold (#E6C158) */
   --primary-foreground: oklch(0.08 0.005 45);
 
   --secondary: oklch(0.16 0.008 45);
@@ -82,7 +82,7 @@
 
   --border: oklch(0.20 0.01 45);
   --input: oklch(0.20 0.01 45);
-  --ring: oklch(0.74 0.11 38);
+  --ring: oklch(0.74 0.14 75);
 
   --radius: 0.75rem;
 
@@ -142,34 +142,34 @@ body {
 }
 
 /* ------------------------------------------- */
-/* --- CLASES DE UTILIDAD PARA ROSE GOLD (#D49B8E) --- */
+/* --- CLASES DE UTILIDAD PARA GOLD DORADO --- */
 /* ------------------------------------------- */
 
 .hover\:bg-gold:hover, .button-google:hover {
-  background-color: #d49b8e !important;
+  background-color: #c49a2a !important;
   color: #111 !important;
   transition: background 0.2s, color 0.2s;
 }
 .text-gold {
-  color: #d49b8e;
+  color: #b8941f;
 }
 
 .bg-gold {
-  background-color: #d49b8e;
+  background-color: #c49a2a;
   color: #0f0e0d;
 }
 
 .border-gold {
-  border-color: #d49b8e;
+  border-color: #c49a2a;
 }
 
-/* Gradiente metálico del logo Rose Gold (Claro, Base, Oscuro) */
+/* Gradiente metálico dorado (Claro, Base, Oscuro) */
 .text-gold-gradient {
   background: linear-gradient(
     135deg,
-    #e5b5a9 0%,
-    #d49b8e 50%,
-    #b87b6e 100%
+    #e6c158 0%,
+    #c49a2a 50%,
+    #a67c00 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -177,21 +177,21 @@ body {
 }
 
 .bg-gold-gradient {
-  background: linear-gradient(135deg, #e5b5a9 0%, #d49b8e 50%, #b87b6e 100%);
+  background: linear-gradient(135deg, #e6c158 0%, #c49a2a 50%, #a67c00 100%);
   color: #0f0e0d;
 }
 
 .text-gold-subtle {
-  color: #c48b7e;
+  color: #a6880a;
 }
 
 .bg-gold-subtle {
-  background-color: #c48b7e;
+  background-color: #a6880a;
   color: #0f0e0d;
 }
 
 .border-gold-subtle {
-  border-color: #c48b7e;
+  border-color: #a6880a;
 }
 
 /* Versiones para acentos más claros */
